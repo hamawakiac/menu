@@ -1,0 +1,1726 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>浜脇AC│トレーニングメニュー</title>
+
+<style>
+:root{
+  --emerald:#1d8fbf;
+  --emerald-2:#3d9f7a;
+  --emerald-3:#171717;
+  --emerald-soft:#eef8fb;
+  --bg:#f5f8f7;
+  --panel:rgba(255,255,255,.92);
+  --text:#16211d;
+  --muted:#6b7280;
+  --line:#dfe8e4;
+  --danger:#dc2626;
+  --shadow:0 18px 50px rgba(15,83,64,.10);
+  --shadow-sm:0 8px 24px rgba(15,83,64,.08);
+  --radius:20px;
+  --overall:#3b82f6;
+  --strength:#22c55e;
+  --sprint:#ef4444;
+  --hurdle:#f97316;
+  --jump:#8b5cf6;
+  --throw:#b7791f;
+  --distance:#06b6d4;
+  --drill:#64748b;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(16,185,129,.09),transparent 30%),
+    radial-gradient(circle at top right,rgba(59,130,246,.07),transparent 28%),
+    var(--bg);
+  color:var(--text);
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  backdrop-filter:blur(18px);
+  background:linear-gradient(135deg,#1778a8 0%,#2f8f8b 42%,#78a93f 68%,#e0cf18 100%);
+  color:#fff;
+  box-shadow:0 8px 30px rgba(0,0,0,.24);border-bottom:5px solid #111;
+}
+.head{max-width:1500px;margin:auto;padding:14px 18px 12px}
+.headtop{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:22px;margin:0;font-weight:900;letter-spacing:.04em;text-shadow:0 2px 4px rgba(0,0,0,.45)}
+.status{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.16);font-size:12px
+}
+.dot{width:9px;height:9px;border-radius:50%;background:#facc15;box-shadow:0 0 0 4px rgba(250,204,21,.14)}
+.dot.online{background:#86efac;box-shadow:0 0 0 4px rgba(134,239,172,.14)}
+.dot.offline{background:#fca5a5;box-shadow:0 0 0 4px rgba(252,165,165,.14)}
+nav{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px;
+  padding:5px;border-radius:15px;background:rgba(255,255,255,.08)
+}
+nav button{
+  border:1px solid transparent;background:transparent;color:#eafff7;
+  border-radius:11px;padding:10px 8px;font-weight:800;font-size:13px;
+  transition:.2s ease
+}
+nav button:hover{background:rgba(255,255,255,.10)}
+nav button.active{
+  background:#f3df24;color:#111;
+  box-shadow:0 8px 18px rgba(0,0,0,.13)
+}
+main{max-width:1500px;margin:auto;padding:22px 18px 36px}
+.view{display:none}.view.active{display:block}
+.panel{
+  background:var(--panel);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(223,232,228,.95);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:var(--shadow);
+}
+.panel h2{margin-top:0;font-size:21px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.builder{display:grid;grid-template-columns:300px 1fr;gap:18px}
+.sticky{position:sticky;top:126px;align-self:start}
+.field{margin-bottom:13px}
+label{
+  display:block;font-size:12px;font-weight:900;margin-bottom:6px;
+  color:#35534a;letter-spacing:.03em
+}
+input,select,textarea{
+  width:100%;border:1px solid #cadad4;border-radius:12px;
+  padding:11px 12px;background:rgba(255,255,255,.96);color:var(--text);
+  transition:.2s ease
+}
+textarea{min-height:88px;resize:vertical}
+input:hover,select:hover,textarea:hover{border-color:#9ed7c3}
+input:focus,select:focus,textarea:focus{
+  outline:0;border-color:var(--emerald);
+  box-shadow:0 0 0 4px rgba(16,185,129,.13);
+  background:#fff
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  border:0;border-radius:11px;padding:10px 14px;font-weight:900;
+  transition:.2s ease;box-shadow:none
+}
+.btn:hover{transform:translateY(-1px)}
+.primary{
+  background:linear-gradient(135deg,#1d8fbf,#4f9f62 58%,#d9c91d);
+  color:#fff;box-shadow:0 8px 18px rgba(16,185,129,.22)
+}
+.primary:hover{box-shadow:0 12px 24px rgba(16,185,129,.28)}
+.secondary{background:#eaf8f2;color:#08684d}
+.secondary:hover{background:#dff5ec}
+.danger{background:#fff1f2;color:var(--danger);border:1px solid #fecdd3}
+.small{padding:7px 9px;font-size:12px}
+.notice{
+  background:linear-gradient(135deg,#effcf7,#f8fffc);
+  border:1px solid #bcebd8;border-radius:14px;padding:12px 14px;
+  margin-bottom:14px;color:#16624c;box-shadow:var(--shadow-sm)
+}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{
+  display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;
+  font-weight:900;font-size:12px;background:var(--soft);color:var(--cat);
+  border:1px solid color-mix(in srgb,var(--cat) 22%,white)
+}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--cat)}
+.cat-overall{--cat:var(--overall);--soft:#e8f1ff}
+.cat-strength{--cat:var(--strength);--soft:#e9fbea}
+.cat-sprint{--cat:var(--sprint);--soft:#fff0f0}
+.cat-hurdle{--cat:var(--hurdle);--soft:#fff3e8}
+.cat-jump{--cat:var(--jump);--soft:#f3edff}
+.cat-throw{--cat:var(--throw);--soft:#fff8df}
+.cat-distance{--cat:var(--distance);--soft:#e6fbff}
+.cat-drill{--cat:var(--drill);--soft:#f1f5f9}
+.section{
+  border:1px solid color-mix(in srgb,var(--cat) 23%,white);
+  border-radius:16px;overflow:hidden;margin-bottom:14px;
+  background:#fff;box-shadow:var(--shadow-sm)
+}
+.section h3{
+  margin:0;padding:12px 14px;background:linear-gradient(90deg,var(--soft),#fff);
+  color:var(--cat);font-size:15px;border-bottom:1px solid color-mix(in srgb,var(--cat) 18%,white)
+}
+.picker{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px;background:#fbfefd}
+.picker select{border-left:6px solid var(--cat);background:var(--soft)}
+.items{padding:10px}
+.item{
+  display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;
+  border:1px solid color-mix(in srgb,var(--cat) 16%,white);
+  border-left:6px solid var(--cat);
+  background:linear-gradient(90deg,var(--soft),#fff 42%);
+  padding:10px;border-radius:11px;margin-bottom:7px
+}
+.item small{color:var(--muted)}
+.menu-list{display:grid;gap:12px}
+.menu{
+  position:relative;
+  display:grid;
+  grid-template-columns:48px minmax(0,1fr);
+  border:1px solid color-mix(in srgb,var(--cat) 18%,white);
+  border-radius:16px;
+  padding:0;overflow:hidden;background:#fff;
+  box-shadow:var(--shadow-sm);
+  transition:.2s ease
+}
+.menu:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(15,83,64,.12)}
+.menu-rail{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--cat) 88%,white),var(--cat));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  padding:10px 4px;font-size:12px;font-weight:900;letter-spacing:.12em;
+  writing-mode:vertical-rl;text-orientation:upright;min-height:138px
+}
+.menu-content{
+  padding:15px 16px;
+  background:linear-gradient(90deg,var(--soft),#fff 42%)
+}
+.menu h4{margin:0 0 7px;font-size:17px}
+.meta{color:var(--muted);font-size:12px;margin:7px 0;line-height:1.6}
+
+.today-board{
+  display:grid;
+  gap:18px;
+  margin-top:16px;
+}
+.today-major{
+  border:1px solid var(--line);
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:var(--shadow-sm);
+}
+.today-major-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:14px 17px;
+  color:#fff;
+  font-size:19px;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.today-major.overall .today-major-title{
+  background:linear-gradient(135deg,#1778a8,#3f9a75 58%,#d5c91e);
+  color:#fff;
+}
+.today-major.events .today-major-title{
+  background:linear-gradient(135deg,#171717,#2f4858);
+}
+.today-major-count{
+  min-width:30px;
+  height:30px;
+  padding:0 9px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.3);
+  font-size:12px;
+}
+.today-major-body{
+  padding:13px;
+  display:grid;
+  gap:11px;
+}
+.today-subsection{
+  border:1px solid color-mix(in srgb,var(--cat) 22%,white);
+  border-left:7px solid var(--cat);
+  border-radius:13px;
+  overflow:hidden;
+  background:linear-gradient(90deg,var(--soft),#fff 34%);
+}
+.today-subtitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 12px;
+  color:var(--cat);
+  font-size:14px;
+  font-weight:900;
+  border-bottom:1px solid color-mix(in srgb,var(--cat) 17%,white);
+}
+.today-subitems{
+  display:grid;
+  gap:7px;
+  padding:9px;
+}
+.today-menu-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:start;
+  padding:9px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.88);
+  border:1px solid color-mix(in srgb,var(--cat) 12%,white);
+}
+.today-menu-row strong{
+  display:block;
+  margin-bottom:3px;
+}
+.today-menu-row small{
+  color:var(--muted);
+  line-height:1.5;
+}
+.today-menu-time{
+  white-space:nowrap;
+  color:var(--cat);
+  font-size:12px;
+  font-weight:900;
+  padding:4px 7px;
+  border-radius:999px;
+  background:var(--soft);
+}
+.today-empty-group{
+  padding:14px;
+  text-align:center;
+  color:#98a2b3;
+  border:1px dashed #cbd8d3;
+  border-radius:11px;
+  background:#fbfdfc;
+}
+.today-summary{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:10px 0 2px;
+}
+.today-summary span{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#f0f7f4;
+  color:#35534a;
+  font-size:12px;
+  font-weight:800;
+}
+@media(max-width:700px){
+  .today-major-title{font-size:17px;padding:12px 13px}
+  .today-major-body{padding:9px}
+  .today-menu-row{grid-template-columns:1fr}
+  .today-menu-time{justify-self:start}
+}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.filters{
+  display:grid;grid-template-columns:240px 1fr;gap:10px;margin-bottom:13px;
+  padding:12px;border-radius:14px;background:#f7fbf9;border:1px solid var(--line)
+}
+.empty{padding:18px;text-align:center;color:#98a2b3;border:1px dashed #c7d6d1;border-radius:12px;background:#fbfdfc}
+.week-toolbar{
+  display:grid;
+  grid-template-columns:auto minmax(330px,1fr) auto;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.week-nav-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.week-nav-right{justify-content:flex-end}
+.week-picker{
+  display:grid;
+  grid-template-columns:auto minmax(145px,180px) minmax(190px,1fr);
+  align-items:center;
+  gap:9px;
+  margin:0;
+  padding:8px 11px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:linear-gradient(135deg,#f7fcfa,#edf8f4);
+}
+.week-picker-label{font-size:12px;font-weight:900;color:#35534a;white-space:nowrap}
+.week-picker input{min-width:0;padding:8px 9px}
+.week-picker strong{text-align:center;color:#173f34;font-size:14px;white-space:nowrap}
+.week-wrap{
+  min-height:360px;
+  overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 230px);
+  border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:var(--shadow-sm)
+}
+.week{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;min-width:0}
+.week th,.week td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px;vertical-align:top;min-width:0}
+.week thead th{
+  position:sticky;top:0;z-index:5;background:linear-gradient(180deg,#f0fcf7,#e7f8f1);
+  width:calc((100% - 138px)/7);color:#245548;font-size:11px
+}
+.week thead th:first-child{left:0;z-index:7;width:138px}
+.week thead th input{padding:6px 5px;font-size:10px;min-width:0}
+.week tbody th{
+  position:sticky;left:0;z-index:4;width:138px;
+  background:linear-gradient(90deg,var(--soft),#fff);
+  color:var(--cat);border-left:5px solid var(--cat);font-weight:900;font-size:11px;line-height:1.35
+}
+.weekcell{min-height:94px;min-width:0}
+.weekcell .picker{grid-template-columns:minmax(0,1fr) auto;gap:4px;padding:4px}
+.weekcell .picker select{padding:6px 4px;font-size:10px;min-width:0;width:100%}
+.weekcell .picker .btn{padding:6px 5px;font-size:10px}
+.weekitem{font-size:10px;padding:5px 5px;word-break:break-word}
+.weekitem{
+  display:grid;grid-template-columns:1fr auto;gap:5px;
+  background:linear-gradient(90deg,var(--soft),#fff);
+  border:1px solid color-mix(in srgb,var(--cat) 18%,white);
+  border-left:5px solid var(--cat);padding:6px 7px;border-radius:8px;
+  margin-top:6px;font-size:12px;font-weight:800
+}
+.x{border:0;border-radius:6px;background:#fff;color:#b42318;font-weight:900}
+.login{
+  position:fixed;inset:0;z-index:100;
+  background:radial-gradient(circle at top,rgba(29,143,191,.30),transparent 35%),linear-gradient(135deg,rgba(13,49,65,.92),rgba(22,22,22,.92));
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:18px
+}
+.login.hidden{display:none}
+.loginbox{
+  background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.7);
+  border-radius:24px;padding:26px;width:min(440px,100%);
+  box-shadow:0 28px 80px rgba(0,0,0,.28)
+}
+.loginbox h2{margin:0 0 6px;font-size:24px}
+.muted{color:var(--muted)}
+
+.entered-days-list{display:grid;gap:14px}
+.entered-day-card{border:1px solid var(--line);border-radius:16px;padding:15px;background:#fff;box-shadow:var(--shadow-sm)}
+.entered-day-card h3{margin:0 0 8px;font-size:17px}
+.entered-day-groups{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.entered-day-group{border:1px solid #dce8e3;border-radius:11px;padding:10px;background:#f9fcfb}
+.entered-day-group strong{display:block;margin-bottom:5px;color:#255548}
+.entered-day-group ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6}
+.month-toolbar{display:grid;grid-template-columns:auto minmax(330px,1fr) auto;gap:12px;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.month-nav-group{display:flex;gap:8px;align-items:center}.month-nav-right{justify-content:flex-end}
+.month-picker{display:grid;grid-template-columns:auto 160px minmax(180px,1fr);gap:9px;align-items:center;margin:0;padding:7px 10px;border:1px solid var(--line);border-radius:13px;background:#f2faf7}
+.month-picker span{font-size:12px;font-weight:900}.month-picker input{padding:8px}.month-picker strong{text-align:center;color:#234f43}
+.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.month-weekday{padding:8px;text-align:center;font-weight:900;border-radius:9px;background:#eaf7f2;color:#235649}
+.month-day{min-height:165px;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.month-day.other{opacity:.3;background:#f3f4f6}.month-day.has-data{border-color:#7ccfb0;box-shadow:inset 0 0 0 1px #bcead8}
+.month-day-head{display:flex;justify-content:space-between;align-items:center;gap:5px}.month-day-number{font-weight:900}.month-day-count{font-size:10px;padding:2px 6px;border-radius:999px;background:#e9f8f2;color:#087052;font-weight:900}
+.month-day input,.month-day textarea{font-size:11px;padding:7px;border-radius:8px}.month-day textarea{min-height:46px}.month-day .btn{margin-top:auto;font-size:11px;padding:7px}
+@media(max-width:1100px){.month-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.month-weekday{display:none}.month-toolbar{grid-template-columns:1fr}.month-nav-group,.month-nav-right{justify-content:space-between}.month-picker{grid-template-columns:auto 1fr}.month-picker strong{grid-column:1/-1}}
+@media(max-width:650px){.month-grid{grid-template-columns:1fr 1fr}.entered-day-groups{grid-template-columns:1fr}}
+
+@media(max-width:900px){
+  nav{grid-template-columns:repeat(2,1fr)}
+  .grid2,.builder{grid-template-columns:1fr}
+  .sticky{position:static}
+  .filters{grid-template-columns:1fr}
+  .week-toolbar{grid-template-columns:1fr;gap:9px}
+  .week-nav-group,.week-nav-right{justify-content:space-between}
+  .week-picker{grid-template-columns:1fr;gap:5px}
+  .week-picker strong{text-align:left;white-space:normal}
+  .week-wrap{max-height:none;overflow-x:auto}
+  .week{min-width:1120px;table-layout:fixed}
+  .week thead th{width:140px;min-width:140px}
+  .week thead th:first-child,.week tbody th{width:150px;min-width:150px}
+  .menu{grid-template-columns:38px minmax(0,1fr)}
+  .menu-rail{font-size:11px;min-height:118px}
+  main{padding:15px 12px 28px}
+  .panel{padding:15px;border-radius:16px}
+}
+/* Mobile form fit */
+html,body{max-width:100%;overflow-x:hidden}
+.field,input,select,textarea{min-width:0}
+#dailyDate,#todayDate,#weekDate{
+  max-width:100%;
+  min-width:0;
+  width:100%;
+  box-sizing:border-box;
+  display:block;
+}
+@media(max-width:700px){
+  .builder{display:block}
+  .builder>.panel,.builder>aside{width:100%;max-width:100%}
+  .field{width:100%;max-width:100%}
+  #dailyDate,#todayDate,#weekDate{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding-left:14px;
+    padding-right:14px;
+  }
+  input[type="date"]::-webkit-date-and-time-value{
+    text-align:left;
+    min-width:0;
+  }
+}
+
+/* A4 print layout */
+
+
+/* Unified A4 one-day print layout */
+.print-prep{
+  --print-scale:1;
+}
+.print-prep header,
+.print-prep .login,
+.print-prep .no-print,
+.print-prep nav,
+.print-prep #dayList,
+.print-prep #enteredDaysPanel{
+  display:none!important;
+}
+.print-prep main{
+  width:196mm!important;
+  max-width:196mm!important;
+  margin:0 auto!important;
+  padding:0!important;
+}
+.print-prep .view{display:none!important}
+.print-prep #v-today.print{display:block!important}
+.print-prep #v-today.print>.panel:first-child{
+  display:block!important;
+  width:196mm!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  background:#fff!important;
+}
+.print-prep #todayContent{
+  width:196mm!important;
+  margin:0 auto!important;
+  zoom:var(--print-scale);
+  background:#fff!important;
+}
+.print-prep #todayContent::before{
+  content:'浜脇AC｜トレーニングメニュー';
+  display:block;
+  text-align:center;
+  font-size:16pt;
+  font-weight:900;
+  margin:0 0 2.5mm;
+  padding-bottom:3mm;
+  border-bottom:2px solid #111;
+}
+.print-prep #todayContent>h2{
+  text-align:center!important;
+  font-size:12.5pt!important;
+  margin:0 0 1.5mm!important;
+  padding:0!important;
+  border:0!important;
+}
+.print-prep #todayContent>h2::before{content:none!important}
+.print-prep #todayContent p{font-size:8pt!important;margin:.7mm 0!important;line-height:1.2!important}
+.print-prep .today-summary{margin:1mm 0!important;gap:1mm!important}
+.print-prep .today-summary span{font-size:7pt!important;padding:.7mm 1.5mm!important}
+.print-prep .today-board{gap:1.5mm!important;margin-top:1.5mm!important}
+.print-prep .today-major{border-radius:1.8mm!important;box-shadow:none!important;border:1px solid #777!important;overflow:hidden!important}
+.print-prep .today-major-title{font-size:9.5pt!important;padding:1.5mm 2.5mm!important}
+.print-prep .today-major-count{height:auto!important;min-width:auto!important;font-size:6.5pt!important;padding:.3mm 1.2mm!important}
+.print-prep .today-major-body{padding:1.2mm!important;gap:1mm!important}
+.print-prep .today-subsection{border-radius:1.2mm!important}
+.print-prep .today-subtitle{font-size:7.8pt!important;padding:.9mm 1.5mm!important}
+.print-prep .today-subitems{padding:.9mm!important;gap:.6mm!important}
+.print-prep .today-menu-row{padding:.9mm 1.2mm!important;gap:1mm!important;border-radius:.8mm!important;grid-template-columns:minmax(0,1fr) auto!important}
+.print-prep .today-menu-row strong{font-size:7.4pt!important;margin-bottom:.2mm!important}
+.print-prep .today-menu-row small{font-size:6.1pt!important;line-height:1.1!important}
+.print-prep .today-menu-time{font-size:6.1pt!important;padding:.25mm .8mm!important}
+.print-prep .notice{font-size:6.8pt!important;line-height:1.15!important;padding:1.2mm 1.5mm!important;margin-top:1.5mm!important;box-shadow:none!important}
+.print-prep .muted{font-size:5.8pt!important;margin-top:.7mm!important}
+
+@page{size:A4 portrait;margin:7mm}
+
+
+
+.today-menu-caution{display:block;margin-top:5px;font-size:.9em;line-height:1.45;color:#8a3b12}
+.entered-caution{display:block;margin-top:2px;line-height:1.4;color:#8a3b12}
+
+.section-edit-meta{
+ padding:7px 11px;
+ border-bottom:1px solid rgba(15,23,42,.10);
+ background:rgba(255,255,255,.70);
+ color:#475569;
+ font-size:12px;
+ font-weight:700;
+ line-height:1.45;
+}
+@media print{.today-menu-caution{font-size:9pt!important;color:#333!important}.entered-caution{color:#333!important}}
+</style>
+
+
+<style id="final-print-style">
+@page{size:A4 portrait;margin:6mm}
+@media print{
+  html,body{
+    margin:0!important;
+    padding:0!important;
+    width:100%!important;
+    height:auto!important;
+    overflow:visible!important;
+    background:#fff!important;
+  }
+
+  body > *:not(#printRoot){display:none!important;}
+
+  #printRoot{
+    display:block!important;
+    position:static!important;
+    width:198mm!important;
+    min-width:198mm!important;
+    max-width:198mm!important;
+    margin:0 auto!important;
+    padding:0!important;
+    background:#fff!important;
+    color:#111!important;
+    overflow:visible!important;
+  }
+
+  /*
+    1 logical print page = exactly 1 physical sheet.
+    The inner content is absolutely positioned so Chrome cannot push a large
+    "break-inside:avoid" block onto another sheet and create blank/header-only pages.
+  */
+  #printRoot .print-page{
+    display:block!important;
+    position:relative!important;
+    width:198mm!important;
+    height:284mm!important;
+    min-height:284mm!important;
+    max-height:284mm!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    break-after:page!important;
+    page-break-after:always!important;
+    break-inside:auto!important;
+    page-break-inside:auto!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  #printRoot .print-page:last-child{
+    break-after:auto!important;
+    page-break-after:auto!important;
+  }
+
+  #printRoot .print-page-inner{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    transform-origin:top left!important;
+    transform:scale(var(--content-scale,1))!important;
+    overflow:visible!important;
+  }
+
+  #printRoot *{
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  #printRoot .print-sheet-title{
+    text-align:center!important;
+    font-size:15pt!important;
+    font-weight:900!important;
+    margin:0 0 3mm!important;
+    padding:2.2mm 2mm!important;
+    border:0!important;
+    color:#07131a!important;
+  }
+
+  #printRoot h2{
+    font-size:14pt!important;
+    margin:1.5mm 0 0.7mm!important;
+  }
+
+  #printRoot p{
+    margin:.5mm 0!important;
+    font-size:9.5pt!important;
+  }
+
+  #printRoot .today-summary{
+    margin:1.5mm 0 2mm!important;
+    gap:1mm!important;
+  }
+
+  #printRoot .today-summary span{
+    padding:1mm 1.8mm!important;
+    font-size:8pt!important;
+  }
+
+  #printRoot .today-board{
+    display:block!important;
+    margin:0!important;
+  }
+
+  #printRoot .today-major,
+  #printRoot .today-subsection,
+  #printRoot .today-menu-row{
+    break-inside:auto!important;
+    page-break-inside:auto!important;
+  }
+
+  #printRoot .today-major{
+    min-width:0!important;
+    box-shadow:none!important;
+    margin:0!important;
+  }
+
+  #printRoot .today-major-title{
+    padding:2mm 2.5mm!important;
+    font-size:12pt!important;
+  }
+
+  #printRoot .today-major-body{
+    padding:1.5mm!important;
+    gap:1.1mm!important;
+  }
+
+  #printRoot .today-subtitle{
+    padding:1.3mm 2mm!important;
+    font-size:9.5pt!important;
+  }
+
+  #printRoot .today-subitems{
+    padding:1mm!important;
+    gap:.9mm!important;
+  }
+
+  #printRoot .today-menu-row{
+    padding:1.4mm 1.8mm!important;
+    font-size:9pt!important;
+    line-height:1.25!important;
+  }
+
+  #printRoot .today-menu-row strong{
+    font-size:9pt!important;
+  }
+
+  #printRoot .today-menu-row small{
+    font-size:7.6pt!important;
+    line-height:1.2!important;
+  }
+
+  #printRoot .today-menu-caution{
+    font-size:7.3pt!important;
+    line-height:1.18!important;
+    margin-top:.6mm!important;
+    color:#333!important;
+  }
+
+  #printRoot .today-menu-time{
+    font-size:7.5pt!important;
+    padding:.7mm 1.3mm!important;
+  }
+
+  #printRoot .notice{
+    margin-top:1.5mm!important;
+    padding:1.8mm 2.2mm!important;
+    font-size:8.5pt!important;
+  }
+
+  #printRoot .muted{
+    margin-top:1mm!important;
+    font-size:7.2pt!important;
+  }
+
+  #printRoot button,
+  #printRoot .actions,
+  #printRoot .no-print{
+    display:none!important;
+  }
+}
+</style>
+
+<style id="hamawaki-global-gradient-override">
+:root {
+  --hamawaki-gradient: linear-gradient(90deg,#38bdf8 0%,#0ea5e9 24%,#22c55e 64%,#facc15 100%);
+}
+/* 全ページ共通のヘッダー・上部バー */
+header,
+.app-header,
+.topbar,
+.top-bar,
+.page-header,
+.main-header,
+.brand-header,
+.navbar,
+.nav-bar,
+.toolbar,
+.header-bar {
+  background: var(--hamawaki-gradient) !important;
+  background-image: var(--hamawaki-gradient) !important;
+}
+/* ページごとのタイトル帯 */
+.view-title,
+.page-title-bar,
+.section-title.main-title,
+.panel-title.main-title {
+  background: var(--hamawaki-gradient) !important;
+  background-image: var(--hamawaki-gradient) !important;
+}
+/* 印刷タイトルも同じ配色 */
+@media print {
+  .print-sheet-title {
+    background: var(--hamawaki-gradient) !important;
+    background-image: var(--hamawaki-gradient) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>
+
+
+
+
+<style id="mobile-date-overflow-fix">
+/* iPhone Safari: 日付入力が親要素より横に広がる問題を防止 */
+@media (max-width:700px){
+  #v-daily .field,
+  #v-daily .panel,
+  #v-daily .builder,
+  #v-today .toolbar {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  #dailyDate,
+  #todayDate,
+  #weekDate {
+    display:block !important;
+    width:100% !important;
+    inline-size:100% !important;
+    min-width:0 !important;
+    min-inline-size:0 !important;
+    max-width:100% !important;
+    max-inline-size:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  /* iOSのdate入力が持つ独自の最小幅を解除 */
+  #dailyDate {
+    -webkit-appearance:none !important;
+    appearance:none !important;
+    overflow:hidden !important;
+  }
+
+  #dailyDate::-webkit-date-and-time-value {
+    min-width:0 !important;
+    width:100% !important;
+    text-align:left !important;
+  }
+}
+</style>
+
+
+<style id="today-toolbar-exact-no-gradient">
+/* 今日・一覧：日付／この日を編集／印刷 が並ぶ帯だけグラデーションを解除 */
+#v-today > .panel > .toolbar.no-print {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+</style>
+
+
+<style id="entered-band-and-print-accuracy-fix">
+/* 入力済み日程：色付き帯の文字に余白を設け、角を丸くする */
+.entered-day-card{
+  padding:0 !important;
+  overflow:hidden !important;
+  border-radius:16px !important;
+}
+.entered-day-card > .toolbar{
+  margin:0 !important;
+  padding:13px 15px !important;
+  min-height:58px !important;
+  box-sizing:border-box !important;
+  border-radius:15px 15px 0 0 !important;
+  overflow:hidden !important;
+  background:var(--hamawaki-gradient) !important;
+  background-image:var(--hamawaki-gradient) !important;
+}
+.entered-day-card > .toolbar h3{
+  margin:0 0 5px !important;
+  line-height:1.25 !important;
+}
+.entered-day-card > .toolbar .actions{
+  padding-left:10px !important;
+}
+.entered-day-card > .entered-day-groups{
+  margin:0 !important;
+  padding:0 14px 14px !important;
+}
+@media(max-width:650px){
+  .entered-day-card > .toolbar{padding:12px !important;gap:10px !important}
+  .entered-day-card > .entered-day-groups{padding:0 10px 10px !important}
+}
+
+/* 印刷：各論理ページをA4 1枚に固定し、幅は常に印刷可能領域いっぱい */
+@media print{
+  #printRoot .print-page-inner{
+    transform:none !important;
+    zoom:var(--content-scale,1) !important;
+    transform-origin:initial !important;
+    box-sizing:border-box !important;
+  }
+  #printRoot .print-page{
+    overflow:hidden !important;
+  }
+  #printRoot .print-sheet-title,
+  #printRoot .today-major-title{
+    border-radius:2.2mm !important;
+  }
+}
+</style>
+
+
+<style id="print-title-unified-style">
+@media print {
+  #printRoot .print-sheet-title {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+  }
+  #printRoot .print-page-label {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 0 2.5mm !important;
+    padding: 1.8mm 2.5mm !important;
+    border-radius: 2.5mm !important;
+    font-size: 12pt !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+    background: #eef8f4 !important;
+    border: .3mm solid #b8dfd1 !important;
+    color: #075f4b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>
+
+
+<style>
+@media print {
+ #printRoot .print-page-inner{
+  font-family:"メイリオ","Meiryo","Yu Gothic","YuGothic",sans-serif!important;
+  font-size:11.5pt!important;
+  line-height:1.48!important;
+  letter-spacing:.01em!important;
+ }
+ #printRoot .print-sheet-title{font-size:18pt!important;line-height:1.25!important;margin-bottom:2.5mm!important}
+ #printRoot .print-page-label{font-size:13pt!important;line-height:1.3!important}
+ #printRoot h2{font-size:15pt!important;line-height:1.35!important;margin:2mm 0!important}
+ #printRoot p,#printRoot .today-summary,#printRoot .notice,#printRoot .muted{font-size:10.5pt!important;line-height:1.48!important}
+ #printRoot .today-major-title{font-size:13pt!important;line-height:1.35!important}
+ #printRoot .today-subtitle{font-size:11.5pt!important;line-height:1.4!important}
+ #printRoot .section-edit-meta{font-size:9.8pt!important;line-height:1.4!important;padding:1.5mm 2.5mm!important}
+ #printRoot .today-menu-row{font-size:11pt!important;line-height:1.48!important}
+ #printRoot .today-menu-row strong{font-size:11.5pt!important;line-height:1.4!important}
+ #printRoot .today-menu-row small,#printRoot .today-menu-caution,#printRoot .today-menu-time{font-size:10.2pt!important;line-height:1.45!important}
+}
+</style>
+</head>
+<body>
+<div id="login" class="login hidden">
+ <div class="loginbox">
+  <h2>浜脇ACログイン</h2>
+  <p class="muted">通知されているユーザー名とパスワードでログインしてください。</p>
+  <div class="field"><label>ユーザー名またはメールアドレス</label><input id="loginId" type="text" autocomplete="username" placeholder="例：coach01 または coach@example.com"></div>
+  <div class="field"><label>パスワード</label><input id="password" type="password"></div>
+  <button id="loginBtn" class="btn primary" style="width:100%">ログイン</button><p class="muted" style="margin-bottom:0">アカウントやパスワードが分からない人は飯降コーチに問い合わせてください。</p>
+  <p id="loginMsg" class="muted"></p>
+ </div>
+</div>
+
+<header><div class="head">
+ <div class="headtop"><div><h1>浜脇AC│トレーニングメニュー</h1><div style="height:4px;width:190px;margin-top:6px;border-radius:999px;background:linear-gradient(90deg,#1d8fbf,#62a34a,#f1dc22,#111)"></div></div>
+  <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
+ </div>
+ <nav>
+  <button class="active" data-view="today">今日・一覧</button>
+  <button data-view="daily">1日入力</button>
+  <button data-view="weekly">週間入力</button>
+  <button data-view="monthly">月間入力</button>
+  <button data-view="menus">メニュー管理</button>
+ </nav>
+</div></header>
+
+<main>
+<section id="v-today" class="view active">
+ <div class="panel">
+  <div class="toolbar no-print"><input id="todayDate" type="date" style="width:auto"><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
+  <div id="todayContent"></div>
+ </div>
+ <div class="panel" id="enteredDaysPanel"><h2>入力済み日程</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div id="dayList" class="entered-days-list"></div></div>
+</section>
+
+<section id="v-daily" class="view">
+ <div class="notice">各欄のプルダウンからメニューを選択し、「追加」を押します。</div>
+ <div class="builder">
+  <aside class="panel sticky no-print">
+   <div class="field"><label>日付</label><input id="dailyDate" type="date"></div>
+   <div class="field"><label>テーマ</label><input id="theme"></div>
+   <div class="field"><label>連絡事項</label><textarea id="notes"></textarea></div>
+   <div class="actions"><button id="saveDay" class="btn primary">保存</button><button id="copyPrev" class="btn secondary">前日コピー</button><button id="deleteDay" class="btn danger">削除</button></div>
+  </aside>
+  <div id="dailySections"></div>
+ </div>
+</section>
+
+<section id="v-weekly" class="view">
+ <div class="panel">
+  <div class="week-toolbar no-print">
+   <div class="week-nav-group">
+    <button id="prevWeek" class="btn secondary">← 前の週</button>
+    <button id="thisWeek" class="btn secondary">今週</button>
+   </div>
+   <label class="week-picker" for="weekDate">
+    <span class="week-picker-label">週を選択</span>
+    <input id="weekDate" type="date">
+    <strong id="weekTitle"></strong>
+   </label>
+   <div class="week-nav-group week-nav-right">
+    <button id="saveWeek" class="btn primary">1週間を保存</button>
+    <button id="nextWeek" class="btn secondary">次の週 →</button>
+   </div>
+  </div>
+  <div class="week-wrap"><table class="week"><thead id="weekHead"></thead><tbody id="weekBody"></tbody></table></div>
+ </div>
+</section>
+
+<section id="v-monthly" class="view">
+ <div class="panel">
+  <div class="month-toolbar no-print">
+   <div class="month-nav-group">
+    <button id="prevMonth" class="btn secondary">← 前の月</button>
+    <button id="thisMonth" class="btn secondary">今月</button>
+   </div>
+   <label class="month-picker" for="monthDate">
+    <span>月を選択</span>
+    <input id="monthDate" type="month">
+    <strong id="monthTitle"></strong>
+   </label>
+   <div class="month-nav-group month-nav-right">
+    <button id="saveMonth" class="btn primary">1か月を保存</button>
+    <button id="nextMonth" class="btn secondary">次の月 →</button>
+   </div>
+  </div>
+  <div class="month-grid" id="monthGrid"></div>
+ </div>
+</section>
+
+<section id="v-menus" class="view">
+ <div class="panel"><h2 id="formTitle">メニュー登録・編集</h2><p class="muted" style="margin-top:-6px">種類を選ぶだけで、前半・本練習・後半の適切な欄に表示されます。</p><input id="editId" type="hidden">
+  <div class="grid2">
+   <div>
+    <div class="field"><label>メニュー名</label><input id="name"></div>
+    <div class="field"><label>種類</label><select id="category"></select></div>
+    <div class="field"><label>内容</label><textarea id="detail"></textarea></div>
+   </div>
+   <div>
+    <div class="field"><label>本数・セット</label><input id="sets"></div>
+    <div class="field"><label>強度・設定</label><input id="intensity"></div>
+    <div class="field"><label>レスト</label><input id="rest"></div>
+    <div class="field"><label>所要時間</label><input id="duration"></div>
+    <div class="field"><label>対象</label><input id="target"></div>
+    <div class="field"><label>注意点</label><textarea id="caution"></textarea></div>
+   </div>
+  </div>
+  <div class="actions"><button id="saveMenu" class="btn primary">保存</button><button id="resetMenu" class="btn secondary">リセット</button></div>
+ </div>
+ <div class="panel"><h2>登録済みメニュー一覧</h2><p class="muted" style="margin-top:-6px">種目ごとに色分けして表示しています。</p>
+  <div class="legend" id="legend"></div>
+  <div class="filters no-print"><select id="filterCat"></select><input id="filterText" placeholder="検索"></div>
+  <div id="menuList" class="menu-list"></div>
+ </div>
+</section>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const TEAM_ID="athletics-club";
+const USERNAME_LOGIN_DOMAIN="hamawaki-ac.example";
+const CATS=["全体メニュー（前半）","全体練習メニュー（本練習）","全体メニュー（後半）","ドリルメニュー","短距離メニュー","ハードルメニュー","跳躍メニュー","投擲メニュー","長距離メニュー","筋トレメニュー"];
+const STARTER_MENUS=[{"id": "overall-warmup-20", "name": "全体ウォームアップ20分", "category": "全体メニュー（前半）", "placement": "before", "detail": "ジョグ5分、動的ストレッチ5分、モビリティ5分、流し60m×3。90名を3〜4グループに分けて実施。", "sets": "1式", "intensity": "低〜中", "rest": "移動中", "duration": "20分", "target": "全員", "caution": "体調確認と痛みの申告を最初に行う"}, {"id": "overall-warmup-30", "name": "土曜全体ウォームアップ30分", "category": "全体メニュー（前半）", "placement": "before", "detail": "ジョグ8分、動的ストレッチ、ミニハードル、スキップ系ドリル、流し80m×3。", "sets": "1式", "intensity": "低〜中", "rest": "適宜", "duration": "30分", "target": "全員", "caution": "種目別に必要な可動域を追加する"}, {"id": "overall-running-drills", "name": "共通ランニングドリル", "category": "全体メニュー（前半）", "placement": "before", "detail": "Aスキップ、Bスキップ、腿上げ、バウンディング、快調走60m×2。", "sets": "各20m×2", "intensity": "中", "rest": "歩いて戻る", "duration": "15分", "target": "全員", "caution": "速さより姿勢と接地を優先"}, {"id": "overall-speed-coordination", "name": "全体スピード調整走", "category": "全体メニュー（前半）", "placement": "before", "detail": "60m流しを70％、80％、90％で1本ずつ。種目別練習へ移る前の動き確認。", "sets": "60m×3", "intensity": "70〜90％", "rest": "2分", "duration": "12分", "target": "全員", "caution": "競走にしない"}, {"id": "overall-cooldown-15", "name": "全体クールダウン15分", "category": "全体メニュー（後半）", "placement": "after", "detail": "軽いジョグ、呼吸を整える歩行、静的ストレッチ、振り返り。", "sets": "1式", "intensity": "低", "rest": "なし", "duration": "15分", "target": "全員", "caution": "痛みや違和感をコーチへ報告"}, {"id": "overall-cooldown-25", "name": "土曜リカバリー25分", "category": "全体メニュー（後半）", "placement": "after", "detail": "ジョグ8分、ペアストレッチ、フォームローラー、翌日のセルフケア確認。", "sets": "1式", "intensity": "低", "rest": "なし", "duration": "25分", "target": "全員", "caution": "強く伸ばしすぎない"}, {"id": "overall-relay", "name": "全体リレー・チーム走", "category": "全体練習メニュー（本練習）", "placement": "middle", "detail": "学年・種目混成チームで100mまたは200mリレー。競技力とチームづくりを両立。", "sets": "2〜3レース", "intensity": "85〜95％", "rest": "8〜10分", "duration": "25分", "target": "全員", "caution": "バトンゾーンと走路の安全管理"}, {"id": "sprint-accel-30", "name": "加速走30m", "category": "短距離メニュー", "placement": "middle", "detail": "3点またはクラウチングスタートから30m。最初の10歩の押し出しと姿勢変化を確認。", "sets": "4〜6本", "intensity": "95％", "rest": "3〜4分", "duration": "30分", "target": "短距離", "caution": "本数より質を優先"}, {"id": "sprint-fly-30", "name": "フライング30m", "category": "短距離メニュー", "placement": "middle", "detail": "30m助走＋30m計測区間。最高速度時の接地とリラックスを狙う。", "sets": "4〜5本", "intensity": "95〜100％", "rest": "5〜6分", "duration": "35分", "target": "短距離", "caution": "疲労でフォームが崩れたら終了"}, {"id": "sprint-120x4", "name": "120m×4", "category": "短距離メニュー", "placement": "middle", "detail": "後半までフォームを保つスピード持久。400m系は設定をやや抑え、質をそろえる。", "sets": "4本", "intensity": "90〜95％", "rest": "6〜8分", "duration": "45分", "target": "短距離", "caution": "ハムストリングの張りを確認"}, {"id": "sprint-200x3", "name": "200m×3", "category": "短距離メニュー", "placement": "middle", "detail": "200mを一定リズムで走り、後半の姿勢維持を狙う。", "sets": "3本", "intensity": "85〜90％", "rest": "8〜10分", "duration": "45分", "target": "200m・400m", "caution": "タイム差を大きくしない"}, {"id": "sprint-300-200-100", "name": "300m＋200m＋100m", "category": "短距離メニュー", "placement": "middle", "detail": "距離を短くしながら速度を上げる。400m系のレース後半対策。", "sets": "1〜2セット", "intensity": "85〜95％", "rest": "8分・セット間15分", "duration": "55分", "target": "200m・400m", "caution": "中学生は1セットを基本に調整"}, {"id": "sprint-tempo-100", "name": "テンポ走100m×8", "category": "短距離メニュー", "placement": "middle", "detail": "フォームを崩さない余裕ある反復走。回復日や基礎期に使用。", "sets": "100m×8", "intensity": "65〜75％", "rest": "60〜90秒", "duration": "30分", "target": "短距離", "caution": "スパイクを使わない日を設ける"}, {"id": "hurdle-mobility", "name": "ハードルモビリティ", "category": "ハードルメニュー", "placement": "middle", "detail": "またぎ、抜き足、リード脚、横向きドリルを低いハードルで行う。", "sets": "各6台×2", "intensity": "低〜中", "rest": "歩いて戻る", "duration": "25分", "target": "ハードル", "caution": "骨盤が流れないようにする"}, {"id": "hurdle-approach-3", "name": "1台目アプローチ練習", "category": "ハードルメニュー", "placement": "middle", "detail": "スタートから1台目までを反復し、歩数と踏切位置を安定させる。", "sets": "5〜7本", "intensity": "90〜95％", "rest": "4分", "duration": "35分", "target": "100mH・110mH", "caution": "ハードル高は発達段階に合わせる"}, {"id": "hurdle-5", "name": "5台リズム走", "category": "ハードルメニュー", "placement": "middle", "detail": "5台を一定リズムで走り、抜き足後の接地をそろえる。", "sets": "4〜6本", "intensity": "85〜95％", "rest": "5〜6分", "duration": "45分", "target": "ハードル", "caution": "台間を無理に合わせず個別調整"}, {"id": "hurdle-400h", "name": "400mH分割走", "category": "ハードルメニュー", "placement": "middle", "detail": "200mH＋150mHなどに分け、後半のリズム維持を練習。", "sets": "1〜2セット", "intensity": "85〜90％", "rest": "10分", "duration": "50分", "target": "400mH", "caution": "本数と台数は習熟度別にする"}, {"id": "jump-approach", "name": "助走リズム確認", "category": "跳躍メニュー", "placement": "middle", "detail": "チェックマークを用いて助走の前半・後半リズムを確認する。", "sets": "6〜10本", "intensity": "75〜90％", "rest": "2〜3分", "duration": "35分", "target": "跳躍", "caution": "全助走だけに偏らない"}, {"id": "jump-short", "name": "短助走跳躍", "category": "跳躍メニュー", "placement": "middle", "detail": "6〜10歩助走から踏切姿勢と空中動作を確認。走幅跳・走高跳で内容を分ける。", "sets": "6〜8本", "intensity": "85〜90％", "rest": "3〜4分", "duration": "40分", "target": "跳躍", "caution": "着地場所とマット周辺を常時確認"}, {"id": "jump-full", "name": "全助走技術練習", "category": "跳躍メニュー", "placement": "middle", "detail": "試合に近い助走で技術を確認し、動画撮影でフィードバック。", "sets": "4〜6本", "intensity": "90〜95％", "rest": "5〜7分", "duration": "50分", "target": "跳躍", "caution": "本数を増やしすぎない"}, {"id": "jump-plyo", "name": "跳躍系プライオメトリクス", "category": "跳躍メニュー", "placement": "middle", "detail": "ホッピング、バウンディング、低いボックスジャンプを少量高品質で実施。", "sets": "各20m×2または5回×3", "intensity": "中〜高", "rest": "2〜3分", "duration": "25分", "target": "跳躍", "caution": "接地音と膝・足首の安定を確認"}, {"id": "throw-medball", "name": "メディシンボール投げ", "category": "投擲メニュー", "placement": "middle", "detail": "前方、後方、回旋、頭上投げ。全身連動と力の伝達を養う。", "sets": "各5回×2", "intensity": "中", "rest": "1〜2分", "duration": "25分", "target": "投擲", "caution": "投擲方向を統一し回収時間を分ける"}, {"id": "throw-standing", "name": "立ち投げ技術", "category": "投擲メニュー", "placement": "middle", "detail": "助走を使わず、下半身から上半身への力の伝達を確認。", "sets": "8〜12投", "intensity": "75〜85％", "rest": "2分", "duration": "35分", "target": "投擲", "caution": "器具別に安全エリアを分ける"}, {"id": "throw-partial", "name": "分習投げ", "category": "投擲メニュー", "placement": "middle", "detail": "砲丸・円盤・やりの動作を局面別に分け、課題部分を反復する。", "sets": "各局面6〜8回", "intensity": "中", "rest": "適宜", "duration": "40分", "target": "投擲", "caution": "同時投擲を避ける"}, {"id": "throw-full", "name": "全助走・全動作投げ", "category": "投擲メニュー", "placement": "middle", "detail": "試合形式に近い動作で記録と再現性を確認する。", "sets": "6〜10投", "intensity": "85〜95％", "rest": "3〜4分", "duration": "50分", "target": "投擲", "caution": "投擲サークルと助走路の安全管理を徹底"}, {"id": "distance-easy", "name": "イージーラン40分", "category": "長距離メニュー", "placement": "middle", "detail": "会話可能な強度で有酸素基礎を作る。最後に流しを追加。", "sets": "40分＋流し80m×4", "intensity": "低〜中", "rest": "なし", "duration": "50分", "target": "長距離", "caution": "暑熱時は時間短縮と給水"}, {"id": "distance-1000x5", "name": "1000m×5", "category": "長距離メニュー", "placement": "middle", "detail": "一定ペースで反復し、無酸素性作業閾値付近の持久力を高める。", "sets": "5本", "intensity": "中〜高", "rest": "200mジョグ", "duration": "55分", "target": "長距離", "caution": "能力別に設定タイムを分ける"}, {"id": "distance-400x10", "name": "400m×10", "category": "長距離メニュー", "placement": "middle", "detail": "動きを崩さず速いリズムを反復。グループ別に設定を分ける。", "sets": "10本", "intensity": "85〜90％", "rest": "200mジョグ", "duration": "50分", "target": "中長距離", "caution": "前半を上げすぎない"}, {"id": "distance-tempo", "name": "テンポ走20分", "category": "長距離メニュー", "placement": "middle", "detail": "ややきついが維持可能な一定走。前後にジョグを行う。", "sets": "20分", "intensity": "閾値付近", "rest": "なし", "duration": "45分", "target": "長距離", "caution": "気温と体調でペース調整"}, {"id": "distance-hills", "name": "坂ダッシュ150m×8", "category": "長距離メニュー", "placement": "middle", "detail": "緩い坂でフォームと脚筋力を強化。下りは歩きまたはジョグ。", "sets": "8本", "intensity": "85〜90％", "rest": "下り回復", "duration": "40分", "target": "中長距離", "caution": "急坂を避ける"}, {"id": "strength-pre-activation", "name": "練習前アクティベーション", "category": "筋トレメニュー", "placement": "before", "detail": "ミニバンド歩行、片脚ヒップリフト、デッドバグ、足首ホップ。", "sets": "各8〜12回×2", "intensity": "低〜中", "rest": "短時間", "duration": "12分", "target": "全員", "caution": "疲労させず動きを整える"}, {"id": "strength-core", "name": "体幹サーキット", "category": "筋トレメニュー", "placement": "after", "detail": "フロントプランク、サイドプランク、バードドッグ、パロフプレス。", "sets": "30秒×2周", "intensity": "中", "rest": "種目間20秒", "duration": "15分", "target": "全員", "caution": "腰を反らさない"}, {"id": "strength-lower", "name": "下半身基礎筋力", "category": "筋トレメニュー", "placement": "after", "detail": "ゴブレットスクワット、ブルガリアンスクワット、RDL、カーフレイズ。", "sets": "8〜12回×3", "intensity": "中", "rest": "60〜90秒", "duration": "30分", "target": "全員", "caution": "中学生はフォーム優先で負荷を個別設定"}, {"id": "strength-upper", "name": "上半身・投擲補強", "category": "筋トレメニュー", "placement": "after", "detail": "腕立て、懸垂補助、チューブロー、ショルダー外旋。", "sets": "8〜12回×3", "intensity": "中", "rest": "60秒", "duration": "25分", "target": "全員・投擲", "caution": "肩に痛みがある場合は中止"}, {"id": "strength-power", "name": "全身パワーサーキット", "category": "筋トレメニュー", "placement": "middle", "detail": "メディシンボール投げ、ジャンプスクワット、短いスレッド走または抵抗走。", "sets": "各5回×3", "intensity": "高・少量", "rest": "2分", "duration": "25分", "target": "短距離・跳躍・投擲", "caution": "疲労時に行わない"}, {"id": "strength-injury-prevention", "name": "傷害予防補強", "category": "筋トレメニュー", "placement": "after", "detail": "ノルディック補助、コペンハーゲンプランク、片脚カーフ、足部内在筋。", "sets": "各6〜10回×2", "intensity": "中", "rest": "45秒", "duration": "20分", "target": "全員", "caution": "痛みのない範囲で実施"}, {"id": "strength-saturday", "name": "土曜ウエイト基礎", "category": "筋トレメニュー", "placement": "after", "detail": "スクワット系、ヒンジ系、プッシュ、プルを4ステーションで実施。90名を小グループに分ける。", "sets": "各6〜10回×3", "intensity": "中", "rest": "90秒", "duration": "40分", "target": "全員", "caution": "指導者配置と器具数に合わせてローテーション"}, {"id": "xlsx-overall-jog-strides", "name": "ジョグ＆流し（アップ）", "category": "全体メニュー（前半）", "detail": "軽いジョギング800〜1200m＋流し（80％程度）を実施し、体温と心拍を上げる。", "sets": "ジョグ1本＋流し4〜6本", "intensity": "低〜中（50〜80％）", "rest": "流し間60〜90秒", "duration": "15〜20分", "target": "全員（練習開始時）", "caution": "体温を上げることが目的。無理に追い込まず、フォームを崩さない。"}, {"id": "xlsx-overall-dynamic-stretch", "name": "ダイナミックストレッチ", "category": "全体メニュー（前半）", "detail": "股関節・肩甲骨・足首を中心とした動的ストレッチ（レッグスイング、ウォーキングランジ等）10種目。", "sets": "各10〜15回×1〜2セット", "intensity": "低", "rest": "種目間15秒", "duration": "10〜15分", "target": "全員", "caution": "反動を使いすぎない。可動域を広げることを意識させる。"}, {"id": "xlsx-overall-circuit", "name": "補強サーキット（全体版）", "category": "全体練習メニュー（本練習）", "detail": "腕立て・腹筋・背筋・プランク等7種目をサーキット形式で連続実施。", "sets": "各20〜30秒×2周", "intensity": "中", "rest": "種目間10秒、周回間60秒", "duration": "15分", "target": "全員", "caution": "フォーム重視。回数をこなすことより質を優先する。"}, {"id": "xlsx-overall-rope", "name": "なわとび", "category": "全体練習メニュー（本練習）", "detail": "両足跳び、片足跳び、二重跳び等でリズム感と接地感覚を養う。", "sets": "各30秒×3種目×2セット", "intensity": "中", "rest": "種目間30秒", "duration": "10分", "target": "全員", "caution": "リズムと接地時間の短縮を意識させる。縄の長さを個人に合わせる。"}, {"id": "xlsx-overall-core", "name": "体幹トレーニング（全体版）", "category": "全体練習メニュー（本練習）", "detail": "プランク、サイドプランク、バードドッグ等で体幹の安定性を養う。", "sets": "各30〜45秒×2セット", "intensity": "中", "rest": "種目間20秒", "duration": "10〜15分", "target": "全員", "caution": "腰を反らさない。呼吸を止めずに実施させる。"}, {"id": "xlsx-overall-cooldown", "name": "クールダウン・ストレッチ", "category": "全体メニュー（後半）", "detail": "軽いジョグ400〜800m＋全身の静的ストレッチ。", "sets": "ジョグ1本＋ストレッチ各20〜30秒", "intensity": "低", "rest": "なし", "duration": "15分", "target": "全員", "caution": "疲労回復・怪我予防が目的。翌日に疲労を残さないよう入念に行う。"}, {"id": "xlsx-overall-meeting", "name": "ミーティング・振り返り", "category": "全体メニュー（後半）", "detail": "練習日誌の記入、当日の目標確認、パート別の連絡事項共有。", "sets": "－", "intensity": "－", "rest": "－", "duration": "5〜10分", "target": "全員", "caution": "選手自身に考えさせる振り返りを促し、一方通行の説明に終始しない。"}, {"id": "xlsx-sprint-start", "name": "スタートダッシュ", "category": "短距離メニュー", "detail": "クラウチングスタートから10〜30mの一次加速を反復。", "sets": "6〜8本×2セット", "intensity": "高（90〜100％）", "rest": "本数間90秒、セット間3分", "duration": "30分", "target": "短距離パート（レベル別グループ）", "caution": "反応と一次加速の姿勢を意識。フライング厳禁を徹底し、本数の詰め込みすぎに注意。"}, {"id": "xlsx-sprint-accel", "name": "加速走", "category": "短距離メニュー", "detail": "30〜60mを徐々にスピードを上げながら加速していく走。", "sets": "4〜6本", "intensity": "中〜高（80〜95％）", "rest": "2〜3分", "duration": "25分", "target": "短距離パート", "caution": "上体の起こし方とピッチ・ストライドのバランスを確認する。"}, {"id": "xlsx-sprint-marks", "name": "マーク走", "category": "短距離メニュー", "detail": "マーカーを一定間隔で設置し、ストライドを合わせて走る（30〜50m）。", "sets": "4〜6本", "intensity": "中（75〜85％）", "rest": "2分", "duration": "20分", "target": "短距離パート", "caution": "ピッチ向上と接地位置の修正が目的。マーク間隔は個人の歩幅に合わせて設定する。"}, {"id": "xlsx-sprint-max-speed", "name": "中間疾走（トップスピード）走", "category": "短距離メニュー", "detail": "30〜40mの入りから60〜80mでトップスピードを維持して走る。", "sets": "3〜5本", "intensity": "高（90〜100％）", "rest": "4〜5分", "duration": "30分", "target": "短距離パート（中2・中3中心）", "caution": "完全に回復してから次本を行う。疲労が見える場合は本数を減らす。"}, {"id": "xlsx-sprint-wind", "name": "流し（ウインドスプリント）", "category": "短距離メニュー", "detail": "60〜80％程度の強度で力まずに走るスプリント。", "sets": "4〜6本", "intensity": "低〜中（60〜80％）", "rest": "60〜90秒", "duration": "15分", "target": "短距離パート", "caution": "フォーム確認・調整が目的。全力で走らず、力を抜くことを意識させる。"}, {"id": "xlsx-sprint-build", "name": "変化走（ビルドアップ走）", "category": "短距離メニュー", "detail": "100〜150mを前半ジョグ、後半にかけて加速していく走。", "sets": "4〜6本", "intensity": "中〜高（70→95％）", "rest": "2〜3分", "duration": "25分", "target": "短距離パート", "caution": "スピードの切り替え能力向上が目的。後半で急激に力まないよう指導する。"}, {"id": "xlsx-hurdle-mobility", "name": "ハードルドリル（股関節可動域）", "category": "ハードルメニュー", "detail": "またぎ越し、サイドステップ等ハードルを使った可動域改善ドリル。", "sets": "各8〜10回×2セット", "intensity": "低〜中", "rest": "種目間30秒", "duration": "15分", "target": "ハードルパート", "caution": "股関節の柔軟性・可動域向上が目的。無理に高いハードルを使用しない。"}, {"id": "xlsx-hurdle-3-5", "name": "3歩・5歩間ハードル", "category": "ハードルメニュー", "detail": "インターバルを短めに設定し、3歩または5歩のリズムで走り抜ける。", "sets": "5〜6本", "intensity": "中〜高（80〜90％）", "rest": "90秒〜2分", "duration": "25分", "target": "ハードルパート", "caution": "リズム習得を最優先し、ハードル間隔は身長・技術レベルに応じて調整する。"}, {"id": "xlsx-hurdle-interval", "name": "インターバルハードル", "category": "ハードルメニュー", "detail": "正規または短縮したインターバルで3〜5台のハードルを走り越える。", "sets": "4〜5本", "intensity": "高（85〜95％）", "rest": "3分", "duration": "30分", "target": "ハードルパート（経験者中心）", "caution": "抜き脚・リード脚のフォームを重視。疲労によるフォーム崩れに注意する。"}, {"id": "xlsx-hurdle-race", "name": "ハードル走（レース想定）", "category": "ハードルメニュー", "detail": "中学規格の台数・高さでのタイムトライアル。", "sets": "2〜3本", "intensity": "高（90〜100％）", "rest": "5〜6分", "duration": "25分", "target": "ハードルパート（大会前調整期）", "caution": "完全回復を確保して実施。大会数週間前から実施頻度を高める。"}, {"id": "xlsx-jump-approach", "name": "助走マーク合わせ", "category": "跳躍メニュー", "detail": "走り幅跳び・走り高跳びの助走リズムを確認し、マークを調整する。", "sets": "6〜8本", "intensity": "中（70〜85％）", "rest": "90秒", "duration": "20分", "target": "跳躍パート", "caution": "助走の再現性向上が目的。風向き・風速も考慮して調整する。"}, {"id": "xlsx-jump-takeoff", "name": "踏切練習", "category": "跳躍メニュー", "detail": "短助走からの踏切動作反復（片脚踏切、連続バウンディング等）。", "sets": "各8〜10回×2〜3セット", "intensity": "中〜高", "rest": "60秒", "duration": "20分", "target": "跳躍パート", "caution": "着地時の膝への負担に注意。シューズと砂場の状態を事前に確認する。"}, {"id": "xlsx-jump-special", "name": "専門ドリル（走り幅跳び／走り高跳び）", "category": "跳躍メニュー", "detail": "はさみ跳び・そり跳び（走高）、空中動作・着地（走幅）等の種目別技術ドリル。", "sets": "各6〜8回×2セット", "intensity": "中", "rest": "60〜90秒", "duration": "25分", "target": "跳躍パート（種目別）", "caution": "個人の技術課題に応じて内容を変える。マット・砂場の安全確認を徹底する。"}, {"id": "xlsx-jump-trial", "name": "跳躍記録会形式練習", "category": "跳躍メニュー", "detail": "全助走での試技を実施し、記録を計測する。", "sets": "3〜6本", "intensity": "高（90〜100％）", "rest": "3〜5分", "duration": "40分", "target": "跳躍パート", "caution": "大会同様の緊張感を持たせる。怪我予防のため入念なウォームアップを徹底する。"}, {"id": "xlsx-throw-basic", "name": "基本フォームドリル", "category": "投擲メニュー", "detail": "砲丸・ジャベリックボール等を使ったグリップ・体幹連動の基礎動作反復。", "sets": "各10〜15回×2セット", "intensity": "低〜中", "rest": "種目間30秒", "duration": "15分", "target": "投てきパート", "caution": "用具の扱い方の安全指導を徹底。投てきエリアの周囲確認を必ず行う。"}, {"id": "xlsx-throw-medball", "name": "メディシンボール投げ（基礎）", "category": "投擲メニュー", "detail": "バックスロー、サイドスロー、チェストパス等でパワーを養成する。", "sets": "各8〜10回×3セット", "intensity": "中〜高", "rest": "60秒", "duration": "20分", "target": "投てきパート", "caution": "反動を使いすぎて腰を痛めないよう体幹を意識させる。ボール重量は年齢・体力に応じて調整。"}, {"id": "xlsx-throw-approach", "name": "助走・体重移動練習", "category": "投擲メニュー", "detail": "クロスステップ・ホップ等の助走から体重移動を伴う投てき動作を反復する。", "sets": "6〜8本", "intensity": "中（70〜85％）", "rest": "90秒", "duration": "25分", "target": "投てきパート", "caution": "下半身から上半身への力の伝達を意識させる。投てき方向の安全確認を必須とする。"}, {"id": "xlsx-throw-trial", "name": "記録会形式投てき練習", "category": "投擲メニュー", "detail": "実際の用具でサークル・助走路から試技を行い記録を計測する。", "sets": "4〜6本", "intensity": "高（90〜100％）", "rest": "3〜4分", "duration": "35分", "target": "投てきパート", "caution": "投てき前後の安全確認を毎回徹底し、大会同様の手順で実施する。"}, {"id": "xlsx-distance-interval", "name": "インターバル走", "category": "長距離メニュー", "detail": "200〜1000m程度の距離を設定ペースで反復して走る。", "sets": "5〜10本", "intensity": "高（85〜95％）", "rest": "距離の1/2〜同等時間のジョグ", "duration": "30〜40分", "target": "長距離パート", "caution": "設定ペースを守れる範囲で本数を調整する。心拍数のモニタリングを推奨。"}, {"id": "xlsx-distance-pace", "name": "ペース走", "category": "長距離メニュー", "detail": "レースペースまたはやや遅いペースで2000〜4000mを走る。", "sets": "1〜2本", "intensity": "中〜高（80〜90％）", "rest": "本数間5分", "duration": "25〜30分", "target": "長距離パート", "caution": "一定ペースの維持を最優先とする。暑熱時は途中で水分補給を挟む。"}, {"id": "xlsx-distance-build", "name": "ビルドアップ走", "category": "長距離メニュー", "detail": "距離を通じて徐々にペースを上げていく走（2000〜3000m）。", "sets": "1本", "intensity": "中→高（70→95％）", "rest": "なし", "duration": "15〜20分", "target": "長距離パート", "caution": "序盤の配分を指導し、ラストで極端に失速しないよう管理する。"}, {"id": "xlsx-distance-lsd", "name": "LSD（ロング・スロー・ディスタンス）", "category": "長距離メニュー", "detail": "低強度で長時間のジョギングを行う（4000〜6000m程度）。", "sets": "1本", "intensity": "低（60〜70％）", "rest": "なし", "duration": "30〜40分", "target": "長距離パート（基礎期中心）", "caution": "会話ができるペースを目安とする。成長期の疲労蓄積に注意する。"}, {"id": "xlsx-distance-repetition", "name": "レペティション", "category": "長距離メニュー", "detail": "400〜600m程度を高強度で反復し、レストを長めにとる。", "sets": "3〜5本", "intensity": "高（90〜95％）", "rest": "完全回復（5〜8分）", "duration": "30〜35分", "target": "長距離パート（中3・大会前調整期中心）", "caution": "スピード持久力向上が目的。完全に回復してから次本を行う。"}, {"id": "xlsx-strength-circuit", "name": "自重サーキット", "category": "筋トレメニュー", "detail": "プッシュアップ・スクワット・バーピー等6〜8種目を連続で実施する。", "sets": "各30秒×2周", "intensity": "中〜高", "rest": "種目間10秒、周回間60秒", "duration": "15〜20分", "target": "全員", "caution": "フォームが崩れたら回数より質を優先。成長期の骨端線への配慮から高負荷は避ける。"}, {"id": "xlsx-strength-squat", "name": "スクワット系", "category": "筋トレメニュー", "detail": "スクワット、ブルガリアンスクワット等の下肢筋力強化種目。", "sets": "各10〜12回×3セット", "intensity": "中", "rest": "60秒", "duration": "15分", "target": "全員（体力レベルで負荷調整）", "caution": "膝とつま先の向きをそろえる。中学生は原則自重中心で加重は慎重に行う。"}, {"id": "xlsx-strength-lunge", "name": "ランジ系", "category": "筋トレメニュー", "detail": "フロントランジ、サイドランジ、ウォーキングランジ。", "sets": "各10回×2〜3セット", "intensity": "中", "rest": "60秒", "duration": "15分", "target": "全員", "caution": "股関節・膝の向きをそろえる。バランスを崩さない範囲で実施させる。"}, {"id": "xlsx-strength-plank", "name": "体幹（プランク系）", "category": "筋トレメニュー", "detail": "プランク、サイドプランク、プランク＋肢上げ等。", "sets": "各30〜45秒×2〜3セット", "intensity": "中", "rest": "30秒", "duration": "15分", "target": "全員", "caution": "腰が反らない・落ちないよう注意。呼吸を止めずに実施させる。"}, {"id": "xlsx-strength-band", "name": "チューブトレーニング", "category": "筋トレメニュー", "detail": "ゴムチューブを使った股関節周り・肩甲骨周りの筋活性化。", "sets": "各15〜20回×2セット", "intensity": "低〜中", "rest": "30秒", "duration": "15分", "target": "全員", "caution": "チューブの劣化・破損を事前に確認。反動を使わずゆっくり操作させる。"}, {"id": "xlsx-strength-plyo", "name": "プライオメトリクス（ジャンプ系）", "category": "筋トレメニュー", "detail": "バウンディング、ハードルジャンプ、ボックスジャンプ等。", "sets": "各6〜8回×2〜3セット", "intensity": "高", "rest": "60〜90秒", "duration": "15〜20分", "target": "中2・中3中心（基礎筋力が備わった選手）", "caution": "実施頻度は週1〜2回程度に制限し、膝・アキレス腱への負担に配慮する。"}, {"id": "xlsx-strength-pair", "name": "ペアトレーニング（バランス・補助系）", "category": "筋トレメニュー", "detail": "二人一組でのバランス要素・補助付きレッグレイズ等。", "sets": "各10回×2セット", "intensity": "中", "rest": "30秒", "duration": "15分", "target": "全員", "caution": "ペアと息を合わせて実施。補助者は力を入れすぎないよう注意する。"}];
+const SECTIONS=[
+{id:"beforeOverall",label:"練習前半：全体",cat:"全体メニュー（前半）"},
+{id:"beforeStrength",label:"練習前半：筋トレ",cat:"筋トレメニュー"},
+{id:"mainOverall",label:"本練習：全体",cat:"全体練習メニュー（本練習）"},
+{id:"drill",label:"ドリル",cat:"ドリルメニュー"},
+{id:"sprint",label:"短距離",cat:"短距離メニュー"},
+{id:"hurdle",label:"ハードル",cat:"ハードルメニュー"},
+{id:"jump",label:"跳躍",cat:"跳躍メニュー"},
+{id:"throw",label:"投擲",cat:"投擲メニュー"},
+{id:"distance",label:"長距離",cat:"長距離メニュー"},
+{id:"middleStrength",label:"種目別：筋トレ",cat:"筋トレメニュー"},
+{id:"afterStrength",label:"練習後半：筋トレ",cat:"筋トレメニュー"},
+{id:"afterOverall",label:"練習後半：全体",cat:"全体メニュー（後半）"}
+];
+let menus=[],days={},daily=blankDay(),weekStart=getMonday(todayISO()),weekDraft={},monthCursor=todayISO().slice(0,7),monthDraft={};
+let dailyDirty=false,weekDirty=false,monthDirty=false;
+let currentView="today";
+let previousDailyDate="";
+let previousWeekDate="";
+let previousMonthDate="";
+let allowUnload=false;
+let db=null,auth=null,user=null,currentRole=null,currentDisplayName="",memberNameMap={},cloud=false,unsubMenus=null,unsubDays=null;
+
+
+function el(id){return document.getElementById(id)}
+function loginIdToEmail(value){
+ const id=String(value||"").trim().toLowerCase();
+ if(!id) return "";
+ if(id.includes("@")) return id;
+ if(!/^[a-z0-9._-]{3,40}$/.test(id)) return "";
+ return `${id}@${USERNAME_LOGIN_DOMAIN}`;
+}
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function cleanDisplayName(v){
+ return String(v||"").trim().replace(/\s+/g," ").slice(0,40);
+}
+function nameForDisplay(value){
+ const raw=String(value||"").trim();
+ if(!raw)return "";
+ if(memberNameMap[raw])return memberNameMap[raw];
+ if(raw.includes("@"))return raw.split("@")[0];
+ return raw;
+}
+function currentUpdaterName(){
+ return cleanDisplayName(currentDisplayName) || cleanDisplayName(user?.displayName) || nameForDisplay(user?.email) || "更新者未設定";
+}
+function refreshUserText(){
+ const roleLabel=currentRole==="admin"?"管理者":currentRole==="editor"?"編集者":currentRole==="viewer"?"閲覧専用":"";
+ const label=currentUpdaterName();
+ const statusText=el("savestatus");
+ if(statusText && user)statusText.textContent=`${label}${roleLabel?`（${roleLabel}）`:""}`;
+}
+function cls(cat){return({"全体メニュー":"cat-overall","全体メニュー（前半）":"cat-overall","全体練習メニュー（本練習）":"cat-overall","全体メニュー（後半）":"cat-overall","筋トレメニュー":"cat-strength","短距離メニュー":"cat-sprint","ハードルメニュー":"cat-hurdle","跳躍メニュー":"cat-jump","投擲メニュー":"cat-throw","長距離メニュー":"cat-distance","ドリルメニュー":"cat-drill"})[cat]||""}
+const SPECIALTY_SECTION_IDS=["sprint","hurdle","jump","throw","distance","middleStrength"];
+function blankDay(){const sections={};SECTIONS.forEach(s=>sections[s.id]=[]);return{theme:"",notes:"",sections,sectionMeta:{}}}
+function normalizeDay(day){
+ const base=blankDay();
+ const src=(day&&typeof day==="object")?structuredClone(day):{};
+ const sections=(src.sections&&typeof src.sections==="object")?src.sections:{};
+ SECTIONS.forEach(s=>{
+  if(!Array.isArray(sections[s.id]))sections[s.id]=[];
+ });
+ const sectionMeta=(src.sectionMeta&&typeof src.sectionMeta==="object")?src.sectionMeta:{};
+ return{...base,...src,sections,sectionMeta};
+}
+function normalizeDaysMap(map){
+ const out={};
+ Object.entries(map||{}).forEach(([date,day])=>out[date]=normalizeDay(day));
+ return out;
+}
+function sectionChanged(beforeDay,afterDay,sectionId){
+ const before=normalizeDay(beforeDay).sections[sectionId]||[];
+ const after=normalizeDay(afterDay).sections[sectionId]||[];
+ return JSON.stringify(before)!==JSON.stringify(after);
+}
+function finalizeDayForSave(date,rawDay){
+ const before=normalizeDay(days[date]);
+ const data=normalizeDay(rawDay);
+ const nowISO=new Date().toISOString();
+ const editor=currentUpdaterName();
+ const sectionMeta={...(data.sectionMeta||{})};
+ SPECIALTY_SECTION_IDS.forEach(sectionId=>{
+  if(sectionChanged(before,data,sectionId)){
+   sectionMeta[sectionId]={updatedBy:editor,updatedAtText:nowISO};
+  }
+ });
+ return {...data,sectionMeta,updatedBy:editor,updatedAtText:nowISO};
+}
+function formatEditTime(value){
+ if(!value)return "";
+ const d=new Date(value);
+ if(Number.isNaN(d.getTime()))return String(value);
+ return d.toLocaleString("ja-JP",{year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function todayISO(){const now=new Date();const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,"0"),d=String(now.getDate()).padStart(2,"0");return `${y}-${m}-${d}`}
+function parseISO(v){const [y,m,d]=String(v).split("-").map(Number);return new Date(Date.UTC(y,m-1,d))}
+function isoUTC(d){return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}-${String(d.getUTCDate()).padStart(2,"0")}`}
+function addDays(v,n){const d=parseISO(v);d.setUTCDate(d.getUTCDate()+n);return isoUTC(d)}
+function getMonday(v){const d=parseISO(v),w=d.getUTCDay();d.setUTCDate(d.getUTCDate()-(w===0?6:w-1));return isoUTC(d)}
+function fmt(v){return parseISO(v).toLocaleDateString("ja-JP",{timeZone:"UTC",year:"numeric",month:"long",day:"numeric",weekday:"short"})}
+function setStatus(t,state=""){el("dbstatus").textContent=t;el("dot").className="dot "+state}
+
+function migrateMenuCategories(list){
+ return (list||[]).map(m=>{
+  if(m.category==="全体メニュー"){
+   const category=m.placement==="after"
+    ? "全体メニュー（後半）"
+    : m.placement==="middle"
+      ? "全体練習メニュー（本練習）"
+      : "全体メニュー（前半）";
+   return {...m,category};
+  }
+  return m;
+ });
+}
+
+function localSave(){localStorage.setItem("coachMenus",JSON.stringify(menus));localStorage.setItem("coachDays",JSON.stringify(days))}
+function markSaved(t="保存済み"){el("savestatus").textContent=t+" "+new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"})}
+
+
+function canEditApp(){
+ return currentRole==="admin" || currentRole==="editor";
+}
+
+function applyRoleUI(){
+ const viewer=!canEditApp();
+
+ document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="monthly"], nav button[data-view="menus"]')
+  .forEach(btn=>btn.style.display=viewer?"none":"");
+
+ if(viewer){
+  nav("today",{skipConfirm:true});
+ }
+
+ const editDayButton=el("editDay");
+ if(editDayButton) editDayButton.style.display=viewer?"none":"";
+
+ document.querySelectorAll(".viewer-hide").forEach(node=>{
+  node.style.display=viewer?"none":"";
+ });
+
+ refreshUserText();
+}
+
+async function loadCurrentRole(){
+ if(!db || !user) return;
+ try{
+  const membersRef=db.collection("teams").doc(TEAM_ID).collection("members");
+  const member=await membersRef.doc(user.uid).get();
+  const memberData=member.exists?member.data():{};
+  currentRole=memberData.role||null;
+  currentDisplayName=cleanDisplayName(memberData.displayName||memberData.name||user.displayName||"");
+  memberNameMap={};
+  if(user.email && currentDisplayName)memberNameMap[user.email]=currentDisplayName;
+
+  // 管理者は全ユーザーのメール→表示名を読み込み、過去データも名前表示に変換。
+  if(currentRole==="admin"){
+   try{
+    const allMembers=await membersRef.get();
+    allMembers.forEach(doc=>{
+     const data=doc.data()||{};
+     const nm=cleanDisplayName(data.displayName||data.name||"");
+     if(nm){
+      if(data.email)memberNameMap[data.email]=nm;
+      memberNameMap[doc.id]=nm;
+     }
+    });
+   }catch(mapError){
+    console.warn("member name map load skipped",mapError);
+   }
+  }
+  applyRoleUI();
+  refreshUserText();
+  renderAll();
+ }catch(error){
+  console.error("role load error",error);
+  currentRole=null;
+  currentDisplayName="";
+  applyRoleUI();
+  refreshUserText();
+ }
+}
+
+function hasUnsavedChanges(){return Boolean(dailyDirty||weekDirty||monthDirty)}
+function discardUnsavedChanges(){
+ dailyDirty=false;weekDirty=false;monthDirty=false;
+ if(el("dailyDate")?.value)loadDay(el("dailyDate").value);
+ loadWeek();loadMonth();
+}
+function confirmLeaveWithUnsaved(){
+ if(!hasUnsavedChanges())return true;
+ const ok=confirm("保存されていない変更があります。保存せずに移動しますか？\n\n「キャンセル」を押すと入力画面に戻れます。");
+ if(ok)discardUnsavedChanges();
+ return ok;
+}
+function nav(view,options={}){
+ if(currentRole==="viewer"&&view!=="today")view="today";
+ if(!options.skipConfirm&&view!==currentView&&!confirmLeaveWithUnsaved())return false;
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ el("v-"+view).classList.add("active");
+ const activeBtn=document.querySelector(`nav button[data-view="${view}"]`);
+ if(activeBtn)activeBtn.classList.add("active");
+ currentView=view;scrollTo(0,0);return true;
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>nav(b.dataset.view));
+
+function fillBasics(){
+ const opts=CATS.map(c=>`<option>${c}</option>`).join("");
+ el("category").innerHTML=opts;el("filterCat").innerHTML=`<option value="">すべて</option>${opts}`;
+ el("legend").innerHTML=CATS.map(c=>`<span class="chip ${cls(c)}"><i></i>${c.replace("メニュー","")}</span>`).join("");
+}
+
+function available(section){return menus.filter(m=>m.category===section.cat)}
+function optionHTML(section){return `<option value="">選択</option>`+available(section).map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join("")}
+
+function renderDaily(){
+ daily=normalizeDay(daily);
+ el("dailySections").innerHTML=SECTIONS.map(s=>{
+  const ids=daily.sections[s.id]||[];
+  return `<div class="section ${cls(s.cat)}"><h3>${esc(s.label)}</h3><div class="picker"><select id="pick-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addDaily('${s.id}')">追加</button></div><div class="items">${ids.length?ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="item ${cls(m.category)}"><div><b>${esc(m.name)}</b><br><small>${esc([m.sets,m.intensity,m.rest].filter(Boolean).join("／"))}</small></div><button class="btn danger small" onclick="removeDaily('${s.id}',${i})">削除</button></div>`:""}).join(""):`<div class="empty">未設定</div>`}</div></div>`
+ }).join("")
+}
+window.addDaily=id=>{daily=normalizeDay(daily);const s=el("pick-"+id);if(s&&s.value){if(!Array.isArray(daily.sections[id]))daily.sections[id]=[];daily.sections[id].push(s.value);dailyDirty=true;renderDaily()}}
+window.removeDaily=(id,i)=>{daily.sections[id].splice(i,1);dailyDirty=true;renderDaily()}
+
+function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;previousDailyDate=date;el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
+el("dailyDate").onfocus=e=>{previousDailyDate=e.target.value};
+el("dailyDate").onchange=e=>{
+ const next=e.target.value,previous=previousDailyDate||next;
+ if(dailyDirty&&!confirmLeaveWithUnsaved()){e.target.value=previous;return}
+ loadDay(next);previousDailyDate=next;
+};
+el("theme").addEventListener("input",()=>dailyDirty=true);
+el("notes").addEventListener("input",()=>dailyDirty=true);
+
+async function saveDayDoc(date,data){
+ data=finalizeDayForSave(date,data);
+ if(cloud){
+  await db.collection("teams").doc(TEAM_ID).collection("days").doc(date).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ }
+ days[date]=data;daily=normalizeDay(data);dailyDirty=false;localSave();renderAll();markSaved();
+}
+async function deleteDayDoc(date){delete days[date];localSave();renderAll();if(cloud)await db.collection("teams").doc(TEAM_ID).collection("days").doc(date).delete();markSaved("削除済み")}
+
+el("saveDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const d=el("dailyDate").value;if(!d)return alert("日付を選択してください");daily.theme=el("theme").value.trim();daily.notes=el("notes").value.trim();try{await saveDayDoc(d,daily);alert("保存しました")}catch(e){console.error(e);alert("保存に失敗しました。通信状態を確認して、もう一度保存してください。")}}
+el("deleteDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const d=el("dailyDate").value;if(days[d]&&confirm(fmt(d)+"を削除しますか？")){await deleteDayDoc(d);loadDay(d)}}
+el("copyPrev").onclick=()=>{const d=addDays(el("dailyDate").value,-1);if(!days[d])return alert("前日のデータがありません");daily=structuredClone(days[d]);el("theme").value=(daily.theme||"")+"（コピー）";daily.theme=el("theme").value;el("notes").value=daily.notes||"";dailyDirty=true;renderDaily()}
+
+function dayHTML(date,day){
+ if(!day)return `<div class="empty">${fmt(date)}は未作成です</div>`;
+
+ const overallIds=["beforeOverall","beforeStrength","drill","mainOverall","afterStrength","afterOverall"];
+ const eventIds=["sprint","hurdle","jump","throw","distance","middleStrength"];
+
+ function renderSubsection(section){
+  if(!section) return "";
+  const ids=day.sections?.[section.id]||[];
+  if(!ids.length) return "";
+
+  const rows=ids.map(id=>{
+   const m=menus.find(x=>x.id===id);
+   if(!m) return "";
+   const detail=[m.detail,m.sets,m.intensity,m.rest].filter(Boolean).join("／");
+   return `<div class="today-menu-row ${cls(m.category)}">
+    <div>
+     <strong>${esc(m.name)}</strong>
+     ${detail?`<small>${esc(detail)}</small>`:""}
+     ${m.caution?`<small class="today-menu-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}
+    </div>
+    ${m.duration?`<span class="today-menu-time">${esc(m.duration)}</span>`:""}
+   </div>`;
+  }).join("");
+
+  const meta=day.sectionMeta?.[section.id];
+  const specialtyMeta=SPECIALTY_SECTION_IDS.includes(section.id)
+   ? `<div class="section-edit-meta">${meta
+      ? `最終編集：${esc(nameForDisplay(meta.updatedBy||""))}／${esc(formatEditTime(meta.updatedAtText||""))}`
+      : "最終編集：記録なし"}</div>`
+   : "";
+  return `<div class="today-subsection ${cls(section.cat)}">
+   <div class="today-subtitle">
+    <span>${esc(section.label)}</span>
+    <span>${ids.length}件</span>
+   </div>
+   ${specialtyMeta}
+   <div class="today-subitems">${rows}</div>
+  </div>`;
+ }
+
+ function renderMajor(title,type,ids){
+  const sections=ids.map(id=>SECTIONS.find(s=>s.id===id)).filter(Boolean);
+  const rendered=sections.map(renderSubsection).filter(Boolean);
+  const count=sections.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
+  return `<div class="today-major ${type}">
+   <div class="today-major-title">
+    <span>${title}</span>
+    <span class="today-major-count">${count}件</span>
+   </div>
+   <div class="today-major-body">
+    ${rendered.length?rendered.join(""):`<div class="today-empty-group">設定されていません</div>`}
+   </div>
+  </div>`;
+ }
+
+ const totalMenus=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
+
+ return `<h2>${fmt(date)}</h2>
+  ${day.theme?`<p><b>テーマ：</b>${esc(day.theme)}</p>`:""}
+  <div class="today-summary">
+   <span>登録メニュー ${totalMenus}件</span>
+   ${day.updatedBy?`<span>更新者 ${esc(nameForDisplay(day.updatedBy))}</span>`:""}
+  </div>
+  <div class="today-board">
+   ${renderMajor("全体練習","overall",overallIds)}
+   ${renderMajor("各種目練習","events",eventIds)}
+  </div>
+  ${day.notes?`<div class="notice" style="margin-top:15px"><b>連絡事項</b><br>${esc(day.notes)}</div>`:""}
+  <p class="muted">最終更新：${esc(nameForDisplay(day.updatedBy||""))}</p>`;
+}
+
+function mmToPx(mm){
+ const probe=document.createElement("div");
+ probe.style.cssText=`position:absolute;left:-9999px;top:-9999px;width:${mm}mm;height:1mm;visibility:hidden;`;
+ document.body.appendChild(probe);
+ const px=probe.getBoundingClientRect().width;
+ probe.remove();
+ return px;
+}
+function fitPrintPageToA4(page){
+ const inner=page.querySelector(".print-page-inner");
+ if(!inner)return;
+
+ inner.style.setProperty("--content-scale","1");
+ inner.style.setProperty("width","100%","important");
+ void inner.offsetHeight;
+
+ const maxH=mmToPx(279);
+ const naturalH=Math.max(inner.scrollHeight,1);
+ let scale=Math.min(1,maxH/naturalH);
+ if(!Number.isFinite(scale)||scale<=0)scale=1;
+ scale=Math.max(0.20,Math.floor(scale*1000)/1000);
+
+ // Chromiumのzoomで縦だけ縮小し、元幅を逆補正して見た目を用紙幅いっぱいに保つ。
+ inner.style.setProperty("--content-scale",String(scale));
+ inner.style.setProperty("width",(100/scale)+"%","important");
+ page.dataset.printScale=String(scale);
+}
+function prepareOnePagePrint(){
+ cleanupOnePagePrint();
+ const selected=el("todayDate")?.value;
+ const day=selected?days[selected]:null;
+ if(!selected||!dayHasContent(day))return false;
+ const content=el("todayContent");
+ if(!content)return false;
+
+ const source=document.createElement("div");
+ source.innerHTML=content.innerHTML;
+ const majors=source.querySelectorAll(".today-major");
+ if(majors.length<2)return false;
+
+ const makePage=(major,index)=>{
+  const page=document.createElement("section");
+  page.className="print-page "+(index===0?"print-overall-page":"print-specialist-page");
+  const headerParts=[];
+  source.querySelectorAll(":scope > h2, :scope > p:not(.muted), :scope > .today-summary").forEach(n=>headerParts.push(n.outerHTML));
+  const copy=major.cloneNode(true);
+  const pageLabel=index===0?"全体練習メニュー":"専門練習メニュー";
+  const title=copy.querySelector(".today-major-title > span:first-child");
+  if(title)title.textContent=pageLabel;
+  page.innerHTML=`<div class="print-page-inner">
+    <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+    <div class="print-page-label">${pageLabel}</div>
+    ${headerParts.join("")}
+    <div class="today-board">${copy.outerHTML}</div>
+  </div>`;
+  // 連絡事項と最終更新は2ページ目の末尾にまとめる。
+  if(index===1){
+   const notice=source.querySelector(":scope > .notice");
+   const muted=source.querySelector(":scope > p.muted");
+   const inner=page.querySelector(".print-page-inner");
+   if(notice)inner.insertAdjacentHTML("beforeend",notice.outerHTML);
+   if(muted)inner.insertAdjacentHTML("beforeend",muted.outerHTML);
+  }
+  return page;
+ };
+
+ const root=document.createElement("div");
+ root.id="printRoot";
+ root.appendChild(makePage(majors[0],0));
+ root.appendChild(makePage(majors[1],1));
+ root.style.position="absolute";
+ root.style.left="-10000px";
+ root.style.top="0";
+ root.style.display="block";
+ root.style.width="198mm";
+ root.style.background="#fff";
+ document.body.appendChild(root);
+ root.querySelectorAll(".print-page").forEach(fitPrintPageToA4);
+ root.style.position="static";
+ root.style.left="auto";
+ return true;
+}
+function cleanupOnePagePrint(){
+ const root=document.getElementById("printRoot");
+ if(root)root.remove();
+}
+function dayHasContent(day){
+ if(!day)return false;
+ if((day.theme||"").trim()||(day.notes||"").trim())return true;
+ return SECTIONS.some(s=>(day.sections?.[s.id]||[]).length>0);
+}
+function compactDayCard(date,day){
+ const overallIds=["beforeOverall","beforeStrength","drill","mainOverall","afterStrength","afterOverall"];
+ const eventIds=["sprint","hurdle","jump","throw","distance","middleStrength"];
+ function menuItems(ids){
+  return ids.flatMap(id=>(day.sections?.[id]||[]).map(mid=>menus.find(m=>m.id===mid)).filter(Boolean));
+ }
+ function compactItems(items){
+  return items.map(m=>`<li><span>${esc(m.name)}</span>${m.caution?`<small class="entered-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}</li>`).join("");
+ }
+ const overall=menuItems(overallIds),events=menuItems(eventIds);
+ return `<article class="entered-day-card">
+  <div class="toolbar"><div><h3>${fmt(date)}</h3>${day.theme?`<div><b>テーマ：</b>${esc(day.theme)}</div>`:""}</div><div class="actions"><button class="btn secondary small" onclick="showTodayDate('${date}')">表示</button><button class="btn secondary small viewer-hide" onclick="openDay('${date}')">編集</button></div></div>
+  <div class="entered-day-groups">
+   <div class="entered-day-group"><strong>全体練習</strong>${overall.length?`<ul>${compactItems(overall)}</ul>`:`<span class="muted">なし</span>`}</div>
+   <div class="entered-day-group"><strong>各種目練習</strong>${events.length?`<ul>${compactItems(events)}</ul>`:`<span class="muted">なし</span>`}</div>
+  </div>
+ </article>`;
+}
+window.showTodayDate=date=>{el("todayDate").value=date;renderToday();scrollTo({top:0,behavior:"smooth"})};
+function renderToday(){
+ const selected=el("todayDate").value;
+ el("todayContent").innerHTML=dayHTML(selected,days[selected]);
+ const printable=dayHasContent(days[selected]);
+ const printBtn=el("printDay");
+ if(printBtn){
+  printBtn.disabled=!printable;
+  printBtn.title=printable?"この日のメニューを印刷":"未作成の日は印刷できません";
+ }
+ const list=Object.keys(days).filter(d=>dayHasContent(days[d])).sort();
+ el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<div class="empty">入力済みの日はありません</div>`;
+ applyRoleUI();
+}
+window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
+el("editDay").onclick=()=>openDay(el("todayDate").value);el("todayDate").onchange=renderToday;el("printDay").onclick=()=>{
+ const selected=el("todayDate").value;
+ if(!dayHasContent(days[selected])){
+  alert(`${fmt(selected)}は未作成のため印刷できません。入力済みの日を「表示」してから印刷してください。`);
+  return;
+ }
+ if(!prepareOnePagePrint()){
+  alert("印刷データを作成できませんでした。画面を再読み込みして、もう一度お試しください。");
+  return;
+ }
+ requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),120)));
+};
+window.addEventListener("beforeprint",()=>{
+ if(!document.getElementById("printRoot")){
+  const selected=el("todayDate")?.value;
+  if(selected&&dayHasContent(days[selected]))prepareOnePagePrint();
+ }
+});
+window.addEventListener("afterprint",cleanupOnePagePrint);
+
+function renderMenus(){
+ const c=el("filterCat").value,q=el("filterText").value.toLowerCase(),list=menus.filter(m=>(!c||m.category===c)&&(!q||(m.name+" "+m.detail+" "+m.target).toLowerCase().includes(q)));
+ el("menuList").innerHTML=list.length?list.map(m=>`<div class="menu ${cls(m.category)}"><div class="menu-rail">${esc(m.category.replace("全体練習メニュー","全体").replace("全体メニュー","全体").replace("メニュー",""))}</div><div class="menu-content"><h4>${esc(m.name)}</h4><span class="chip ${cls(m.category)}"><i></i>${esc(m.category)}</span>${m.detail?`<p>${esc(m.detail)}</p>`:""}<div class="meta">${esc([m.sets,m.intensity,m.rest,m.duration,m.target].filter(Boolean).join("／"))}</div><div class="actions"><button class="btn secondary small" onclick="editMenu('${m.id}')">編集</button><button class="btn danger small" onclick="deleteMenu('${m.id}')">削除</button></div></div></div>`).join(""):`<div class="empty">該当なし</div>`
+}
+el("filterCat").oninput=renderMenus;el("filterText").oninput=renderMenus;
+
+function menuFormData(){
+ return{id:el("editId").value||crypto.randomUUID(),name:el("name").value.trim(),category:el("category").value,detail:el("detail").value.trim(),sets:el("sets").value.trim(),intensity:el("intensity").value.trim(),rest:el("rest").value.trim(),duration:el("duration").value.trim(),target:el("target").value.trim(),caution:el("caution").value.trim()}
+}
+async function saveMenuDoc(m){
+ if(cloud)await db.collection("teams").doc(TEAM_ID).collection("menus").doc(m.id).set({...m,updatedBy:currentUpdaterName(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ const i=menus.findIndex(x=>x.id===m.id);if(i>=0)menus[i]=m;else menus.push(m);localSave();renderAll();markSaved();
+}
+el("saveMenu").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const m=menuFormData();if(!m.name)return alert("メニュー名を入力してください");try{await saveMenuDoc(m);resetMenu();nav("menus");setTimeout(()=>el("menuList").scrollIntoView({behavior:"smooth",block:"start"}),50)}catch(e){console.error(e);alert("メニューの保存に失敗しました。通信状態を確認してください。")}}
+function resetMenu(){["editId","name","detail","sets","intensity","rest","duration","target","caution"].forEach(i=>el(i).value="");el("category").value=CATS[0];el("formTitle").textContent="メニュー登録・編集"}
+el("resetMenu").onclick=resetMenu;
+window.editMenu=id=>{const m=menus.find(x=>x.id===id);if(!m)return;Object.entries({editId:m.id,name:m.name,category:m.category,detail:m.detail,sets:m.sets,intensity:m.intensity,rest:m.rest,duration:m.duration,target:m.target,caution:m.caution}).forEach(([k,v])=>el(k).value=v||"");el("formTitle").textContent="メニュー編集";nav("menus");setTimeout(()=>el("formTitle").scrollIntoView({behavior:"smooth",block:"start"}),50)}
+window.deleteMenu=async id=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const m=menus.find(x=>x.id===id);if(!m||!confirm("削除しますか？"))return;menus=menus.filter(x=>x.id!==id);Object.entries(days).forEach(([date,d])=>{d=normalizeDay(d);SECTIONS.forEach(s=>d.sections[s.id]=d.sections[s.id].filter(x=>x!==id));days[date]=d});localSave();renderAll();if(cloud){await db.collection("teams").doc(TEAM_ID).collection("menus").doc(id).delete();const batch=db.batch();Object.entries(days).forEach(([date,d])=>batch.set(db.collection("teams").doc(TEAM_ID).collection("days").doc(date),d,{merge:true}));await batch.commit()}markSaved("削除済み")}
+
+function loadWeek(){weekDraft={};for(let i=0;i<7;i++){const d=addDays(weekStart,i);weekDraft[d]=normalizeDay(days[d])}weekDirty=false}
+function renderWeek(){
+ weekStart=getMonday(weekStart);
+ const dates=Array.from({length:7},(_,i)=>addDays(weekStart,i));
+ dates.forEach(d=>{
+  weekDraft[d]=normalizeDay(weekDraft[d]||days[d]);
+ });
+ el("weekDate").value=weekStart;
+ el("weekTitle").textContent=`${dates[0]} ～ ${dates[6]}（月〜日）`;
+ el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
+ el("weekBody").innerHTML=SECTIONS.map(s=>`<tr><th class="${cls(s.cat)}">${esc(s.label)}</th>${dates.map(d=>{const ids=weekDraft[d].sections[s.id]||[];return `<td><div class="weekcell ${cls(s.cat)}"><div class="picker"><select id="w-${d}-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addWeek('${d}','${s.id}')">追加</button></div>${ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="weekitem ${cls(m.category)}"><span>${esc(m.name)}</span><button class="x" onclick="removeWeek('${d}','${s.id}',${i})">×</button></div>`:""}).join("")}</div></td>`}).join("")}</tr>`).join("")
+}
+window.addWeek=(d,s)=>{const p=el(`w-${d}-${s}`);if(p.value){weekDraft[d].sections[s].push(p.value);weekDirty=true;renderWeek()}}
+window.removeWeek=(d,s,i)=>{weekDraft[d].sections[s].splice(i,1);weekDirty=true;renderWeek()}
+window.setWeekTheme=(d,v)=>{weekDraft[d].theme=v;weekDirty=true};
+function shiftWeek(n){weekStart=addDays(weekStart,n*7);loadWeek();renderWeek()}
+el("prevWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(-1)};
+el("nextWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(1)};
+el("thisWeek").onclick=()=>{if(!confirmLeaveWithUnsaved())return;weekStart=getMonday(todayISO());loadWeek();renderWeek()};
+el("weekDate").onfocus=e=>{previousWeekDate=e.target.value};
+el("weekDate").onchange=e=>{
+ if(!e.target.value)return;
+ if(weekDirty&&!confirmLeaveWithUnsaved()){e.target.value=previousWeekDate||weekStart;return}
+ weekStart=getMonday(e.target.value);previousWeekDate=weekStart;loadWeek();renderWeek();
+}
+el("saveWeek").onclick=async()=>{
+ if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
+ try{
+  const changed=Object.entries(weekDraft).filter(([date,d])=>dayHasContent(d)||dayHasContent(days[date]));
+  const finalized=changed.map(([date,rawDay])=>[date,finalizeDayForSave(date,rawDay)]);
+  if(cloud){
+   const batch=db.batch();
+   for(const [date,d] of finalized){
+    batch.set(db.collection("teams").doc(TEAM_ID).collection("days").doc(date),{...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+   }
+   if(finalized.length)await batch.commit();
+  }
+  finalized.forEach(([date,d])=>days[date]=normalizeDay(d));
+  weekDirty=false;localSave();renderAll();markSaved();alert("1週間を保存しました");
+ }catch(e){console.error(e);alert("1週間の保存に失敗しました。通信状態を確認してください。")}
+}
+
+function monthDates(month){
+ const [y,m]=month.split("-").map(Number);
+ const last=new Date(Date.UTC(y,m,0)).getUTCDate();
+ return Array.from({length:last},(_,i)=>`${y}-${String(m).padStart(2,"0")}-${String(i+1).padStart(2,"0")}`);
+}
+function loadMonth(){monthDraft={};monthDates(monthCursor).forEach(d=>monthDraft[d]=normalizeDay(days[d]));monthDirty=false}
+function renderMonth(){
+ const dates=monthDates(monthCursor);
+ if(!Object.keys(monthDraft).length||!monthDraft[dates[0]])loadMonth();
+ el("monthDate").value=monthCursor;
+ const [y,m]=monthCursor.split("-").map(Number);
+ el("monthTitle").textContent=`${y}年${m}月（月曜始まり）`;
+ const firstOffset=(parseISO(dates[0]).getUTCDay()+6)%7;
+ const weekdays=["月","火","水","木","金","土","日"].map(w=>`<div class="month-weekday">${w}</div>`).join("");
+ const blanks=Array.from({length:firstOffset},()=>`<div class="month-day other"></div>`).join("");
+ const cells=dates.map(d=>{
+  const day=monthDraft[d]||blankDay();
+  const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
+  return `<div class="month-day ${dayHasContent(day)?"has-data":""}">
+   <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+   <input value="${esc(day.theme||"")}" placeholder="テーマ" oninput="setMonthTheme('${d}',this.value)">
+   <textarea placeholder="連絡事項" oninput="setMonthNotes('${d}',this.value)">${esc(day.notes||"")}</textarea>
+   <button class="btn secondary small" onclick="openMonthDay('${d}')">1日入力を開く</button>
+  </div>`;
+ }).join("");
+ el("monthGrid").innerHTML=weekdays+blanks+cells;
+}
+window.setMonthTheme=(d,v)=>{monthDraft[d].theme=v;monthDirty=true};
+window.setMonthNotes=(d,v)=>{monthDraft[d].notes=v;monthDirty=true};
+window.openMonthDay=d=>{if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)};
+function shiftMonth(n){const [y,m]=monthCursor.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+n,1));monthCursor=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;loadMonth();renderMonth()}
+el("prevMonth").onclick=()=>{if(confirmLeaveWithUnsaved())shiftMonth(-1)};
+el("nextMonth").onclick=()=>{if(confirmLeaveWithUnsaved())shiftMonth(1)};
+el("thisMonth").onclick=()=>{if(!confirmLeaveWithUnsaved())return;monthCursor=todayISO().slice(0,7);loadMonth();renderMonth()};
+el("monthDate").onfocus=e=>{previousMonthDate=e.target.value};
+el("monthDate").onchange=e=>{
+ if(!e.target.value)return;
+ if(monthDirty&&!confirmLeaveWithUnsaved()){e.target.value=previousMonthDate||monthCursor;return}
+ monthCursor=e.target.value;previousMonthDate=monthCursor;loadMonth();renderMonth();
+};
+el("saveMonth").onclick=async()=>{
+ if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
+ try{
+  const changed=Object.entries(monthDraft).filter(([date,d])=>dayHasContent(d)||dayHasContent(days[date]));
+  const finalized=changed.map(([date,rawDay])=>[date,finalizeDayForSave(date,rawDay)]);
+  if(cloud){
+   const batch=db.batch();
+   finalized.forEach(([date,d])=>{
+    batch.set(db.collection("teams").doc(TEAM_ID).collection("days").doc(date),{...d,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+   });
+   if(finalized.length)await batch.commit();
+  }
+  finalized.forEach(([date,d])=>days[date]=normalizeDay(d));
+  monthDirty=false;localSave();renderAll();markSaved("1か月保存済み");alert("1か月を保存しました");
+ }catch(e){console.error(e);alert("1か月の保存に失敗しました。通信状態を確認してください。")}
+};
+
+function renderAll(){renderMenus();renderDaily();renderToday();renderWeek();renderMonth();applyRoleUI()}
+function configured(){return window.FIREBASE_CONFIG?.apiKey&&!String(window.FIREBASE_CONFIG.apiKey).includes("ここに")}
+function startRealtime(){
+ if(unsubMenus)unsubMenus();if(unsubDays)unsubDays();
+ unsubMenus=db.collection("teams").doc(TEAM_ID).collection("menus").onSnapshot(s=>{menus=migrateMenuCategories(s.docs.map(d=>({id:d.id,...d.data()})));localSave();renderAll()},e=>setStatus("メニュー読込エラー","offline"));
+ unsubDays=db.collection("teams").doc(TEAM_ID).collection("days").onSnapshot(s=>{
+  days={};s.docs.forEach(d=>days[d.id]=normalizeDay(d.data()));localSave();
+  if(!dailyDirty)loadDay(el("dailyDate").value);
+  if(!weekDirty)loadWeek();
+  if(!monthDirty)loadMonth();
+  renderAll();
+ },e=>setStatus("練習読込エラー","offline"));
+}
+
+async function syncStarterMenus(){
+ // 初期導入時だけ登録。削除した標準メニューを次回ログインで復活させない。
+ if(!cloud||!user||!canEditApp())return;
+ const snap=await db.collection("teams").doc(TEAM_ID).collection("menus").limit(1).get();
+ if(!snap.empty)return;
+ const batch=db.batch();
+ STARTER_MENUS.forEach(m=>{
+  const ref=db.collection("teams").doc(TEAM_ID).collection("menus").doc(m.id);
+  batch.set(ref,{...m,updatedBy:currentUpdaterName(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ });
+ await batch.commit();
+ markSaved(`${STARTER_MENUS.length}件の初期メニューを登録`);
+}
+
+
+window.addEventListener("beforeunload",event=>{
+ if(allowUnload||!hasUnsavedChanges())return;
+ event.preventDefault();
+ event.returnValue="";
+});
+
+async function init(){
+ menus=migrateMenuCategories(JSON.parse(localStorage.getItem("coachMenus")||"[]"));days=normalizeDaysMap(JSON.parse(localStorage.getItem("coachDays")||"{}"));if(!menus.length)menus=structuredClone(STARTER_MENUS);
+ fillBasics();el("todayDate").value=todayISO();el("dailyDate").value=todayISO();el("weekDate").value=weekStart;el("monthDate").value=monthCursor;previousDailyDate=todayISO();previousWeekDate=weekStart;previousMonthDate=monthCursor;loadDay(todayISO());loadWeek();loadMonth();renderAll();
+ if(!configured()){setStatus("未接続・端末保存","offline");return}
+ try{
+  firebase.initializeApp(window.FIREBASE_CONFIG);auth=firebase.auth();db=firebase.firestore();cloud=true;
+  auth.onAuthStateChanged(async u=>{
+   user=u;
+   if(u){
+    el("login").classList.add("hidden");el("logout").style.display="";setStatus("権限確認中","");el("savestatus").textContent="ユーザー情報を確認中";
+    await loadCurrentRole();
+    startRealtime();
+    try{await syncStarterMenus()}catch(e){console.error("starter menu sync error",e)}
+    setStatus("リアルタイム接続","online");
+   }else{
+    currentRole=null;currentDisplayName="";memberNameMap={};applyRoleUI();el("login").classList.remove("hidden");el("logout").style.display="none";setStatus("ログイン待ち","");
+   }
+  })
+ }catch(e){console.error(e);setStatus("接続エラー","offline")}
+}
+el("loginBtn").onclick=async()=>{
+ const loginEmail=loginIdToEmail(el("loginId").value);
+ if(!loginEmail){
+  el("loginMsg").textContent="ユーザー名は半角英数字・ピリオド・ハイフン・アンダーバーで3文字以上にしてください。";
+  return;
+ }
+ try{
+  el("loginMsg").textContent="ログイン中";
+  await auth.signInWithEmailAndPassword(loginEmail,el("password").value);
+  el("loginMsg").textContent="";
+ }catch(e){
+  el("loginMsg").textContent="ユーザー名・メールアドレスまたはパスワードが違います。";
+ }
+}
+el("logout").onclick=async()=>{
+ if(!confirmLeaveWithUnsaved())return;
+ allowUnload=true;
+ try{await auth.signOut()}finally{allowUnload=false}
+};
+
+el("loginId").addEventListener("keydown",e=>{
+ if(e.key==="Enter") el("password").focus();
+});
+el("password").addEventListener("keydown",e=>{
+ if(e.key==="Enter") el("loginBtn").click();
+});
+
+init();
+</script>
+</body>
+</html>
