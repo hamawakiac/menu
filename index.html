@@ -962,10 +962,10 @@ header,
   <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="userstatus"></span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
  </div>
  <nav>
-  <button class="active" data-view="today">📓 メニュー一覧</button>
+  <button class="active" data-view="today">📓 練習メニュー</button>
   <button data-view="daily">✏️ 1日入力</button>
-  <button data-view="weekly">✏️ 月間予定入力</button>
-  <button data-view="monthly">📅 月間入力</button>
+  <button data-view="weekly">✏️ 週間入力</button>
+  <button data-view="monthly">📅 月間行事</button>
   <button data-view="menus">✏️ メニュー作成</button>
  </nav>
 </div></header>
@@ -984,13 +984,14 @@ header,
  <div class="builder">
   <aside class="panel sticky no-print">
    <div class="field"><label>日付</label><input id="dailyDate" type="date"></div>
+   <div class="field"><label>行事</label><input id="event" placeholder="例：大会、記録会、休養日"></div>
    <div class="field"><label>テーマ</label><input id="theme"></div>
    <div class="field"><label>連絡事項</label><textarea id="notes"></textarea></div>
    <div class="actions"><button id="saveDay" class="btn primary">保存</button><button id="copyPrev" class="btn secondary">前日コピー</button><button id="deleteDay" class="btn danger">削除</button></div>
   </aside>
   <div id="dailySections"></div>
  </div>
- <div class="panel" id="enteredDaysPanel"><h2>入力済み日程一覧表</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div class="entered-days-table-wrap"><table class="entered-days-table"><thead><tr><th>日付</th><th>テーマ</th><th>全体練習</th><th>各種目練習</th><th>更新者</th><th>操作</th></tr></thead><tbody id="dayList"></tbody></table></div></div>
+ <div class="panel" id="enteredDaysPanel"><h2>入力済み日程一覧表</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div class="entered-days-table-wrap"><table class="entered-days-table"><thead><tr><th>日付</th><th>行事</th><th>テーマ</th><th>全体練習</th><th>各種目練習</th><th>更新者</th><th>操作</th></tr></thead><tbody id="dayList"></tbody></table></div></div>
 </section>
 
 <section id="v-weekly" class="view">
@@ -1133,7 +1134,7 @@ const SPECIALTY_SECTION_IDS=["sprint","hurdle","jump","throw","distance","middle
 function blankDay(){
  const sections={},sectionItemMeta={};
  SECTIONS.forEach(s=>{sections[s.id]=[];sectionItemMeta[s.id]=[]});
- return{theme:"",notes:"",sections,sectionMeta:{},sectionItemMeta};
+ return{event:"",theme:"",notes:"",sections,sectionMeta:{},sectionItemMeta};
 }
 function normalizeDay(day){
  const base=blankDay();
@@ -1340,13 +1341,14 @@ window.removeDaily=(id,i)=>{
  dailyDirty=true;dailyChangedSections.add(id);renderDaily();
 }
 
-function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;dailyChangedSections=new Set();previousDailyDate=date;el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
+function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;dailyChangedSections=new Set();previousDailyDate=date;el("event").value=daily.event||"";el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
 el("dailyDate").onfocus=e=>{previousDailyDate=e.target.value};
 el("dailyDate").onchange=e=>{
  const next=e.target.value,previous=previousDailyDate||next;
  if(dailyDirty&&!confirmLeaveWithUnsaved()){e.target.value=previous;return}
  loadDay(next);previousDailyDate=next;
 };
+el("event").addEventListener("input",()=>dailyDirty=true);
 el("theme").addEventListener("input",()=>dailyDirty=true);
 el("notes").addEventListener("input",()=>dailyDirty=true);
 
@@ -1359,9 +1361,9 @@ async function saveDayDoc(date,data){
 }
 async function deleteDayDoc(date){delete days[date];localSave();renderAll();if(cloud)await db.collection("teams").doc(TEAM_ID).collection("days").doc(date).delete();markSaved("削除済み")}
 
-el("saveDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const d=el("dailyDate").value;if(!d)return alert("日付を選択してください");daily.theme=el("theme").value.trim();daily.notes=el("notes").value.trim();try{await saveDayDoc(d,daily);alert("保存しました")}catch(e){console.error(e);alert("保存に失敗しました。通信状態を確認して、もう一度保存してください。")}}
+el("saveDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const d=el("dailyDate").value;if(!d)return alert("日付を選択してください");daily.event=el("event").value.trim();daily.theme=el("theme").value.trim();daily.notes=el("notes").value.trim();try{await saveDayDoc(d,daily);alert("保存しました")}catch(e){console.error(e);alert("保存に失敗しました。通信状態を確認して、もう一度保存してください。")}}
 el("deleteDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const d=el("dailyDate").value;if(days[d]&&confirm(fmt(d)+"を削除しますか？")){await deleteDayDoc(d);loadDay(d)}}
-el("copyPrev").onclick=()=>{const d=addDays(el("dailyDate").value,-1);if(!days[d])return alert("前日のデータがありません");daily=structuredClone(days[d]);dailyChangedSections=new Set(SPECIALTY_SECTION_IDS.filter(id=>(daily.sections?.[id]||[]).length));el("theme").value=(daily.theme||"")+"（コピー）";daily.theme=el("theme").value;el("notes").value=daily.notes||"";dailyDirty=true;renderDaily()}
+el("copyPrev").onclick=()=>{const d=addDays(el("dailyDate").value,-1);if(!days[d])return alert("前日のデータがありません");daily=structuredClone(days[d]);dailyChangedSections=new Set(SPECIALTY_SECTION_IDS.filter(id=>(daily.sections?.[id]||[]).length));el("event").value=daily.event||"";el("theme").value=(daily.theme||"")+"（コピー）";daily.theme=el("theme").value;el("notes").value=daily.notes||"";dailyDirty=true;renderDaily()}
 
 function dayHTML(date,day){
  if(!day)return `<div class="empty">${fmt(date)}は未作成です</div>`;
@@ -1419,6 +1421,7 @@ function dayHTML(date,day){
  const totalMenus=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
 
  return `<h2>${fmt(date)}</h2>
+  ${day.event?`<p><b>行事：</b>${esc(day.event)}</p>`:""}
   ${day.theme?`<p><b>テーマ：</b>${esc(day.theme)}</p>`:""}
   <div class="today-summary">
    <span>登録メニュー ${totalMenus}件</span>
@@ -1520,7 +1523,7 @@ function cleanupOnePagePrint(){
 }
 function dayHasContent(day){
  if(!day)return false;
- if((day.theme||"").trim()||(day.notes||"").trim())return true;
+ if((day.event||"").trim()||(day.theme||"").trim()||(day.notes||"").trim())return true;
  return SECTIONS.some(s=>(day.sections?.[s.id]||[]).length>0);
 }
 function compactDayCard(date,day){
@@ -1535,6 +1538,7 @@ function compactDayCard(date,day){
  const overall=menuItems(overallIds),events=menuItems(eventIds);
  return `<tr>
   <td><strong>${fmt(date)}</strong></td>
+  <td>${day.event?esc(day.event):`<span class="muted">なし</span>`}</td>
   <td>${day.theme?esc(day.theme):`<span class="muted">なし</span>`}</td>
   <td>${compactItems(overall)}</td>
   <td>${compactItems(events)}</td>
@@ -1553,7 +1557,7 @@ function renderToday(){
   printBtn.title=printable?"この日のメニューを印刷":"未作成の日は印刷できません";
  }
  const list=Object.keys(days).filter(d=>dayHasContent(days[d])).sort();
- el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<tr><td colspan="6"><div class="empty">入力済みの日はありません</div></td></tr>`;
+ el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<tr><td colspan="7"><div class="empty">入力済みの日はありません</div></td></tr>`;
  applyRoleUI();
 }
 window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
@@ -1612,7 +1616,7 @@ function renderWeek(){
  });
  el("weekDate").value=weekStart;
  el("weekTitle").textContent=`${dates[0]} ～ ${dates[6]}（月〜日）`;
- el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
+ el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].event||"")}" placeholder="行事" onchange="setWeekEvent('${d}',this.value)" style="margin-top:5px;font-size:12px"><input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
  el("weekBody").innerHTML=SECTIONS.map(s=>`<tr><th class="${cls(s.cat)}">${esc(s.label)}</th>${dates.map(d=>{const ids=weekDraft[d].sections[s.id]||[];const metas=weekDraft[d].sectionItemMeta?.[s.id]||[];return `<td><div class="weekcell ${cls(s.cat)}"><div class="picker"><select id="w-${d}-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addWeek('${d}','${s.id}')">追加</button></div>${ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="weekitem ${cls(m.category)}"><span>${esc(m.name)}${itemUpdaterHTML(metas[i],"week-item-added-by")}</span><button class="x" onclick="removeWeek('${d}','${s.id}',${i})">×</button></div>`:""}).join("")}</div></td>`}).join("")}</tr>`).join("")
 }
 window.addWeek=(d,s)=>{
@@ -1630,6 +1634,7 @@ window.removeWeek=(d,s,i)=>{
  weekDraft[d].sectionItemMeta[s].splice(i,1);
  weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek();
 }
+window.setWeekEvent=(d,v)=>{weekDraft[d].event=v;weekDirty=true};
 window.setWeekTheme=(d,v)=>{weekDraft[d].theme=v;weekDirty=true};
 function shiftWeek(n){weekStart=addDays(weekStart,n*7);loadWeek();renderWeek()}
 el("prevWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(-1)};
@@ -1678,6 +1683,7 @@ function renderMonth(){
   const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
   return `<div class="month-day ${dayHasContent(day)?"has-data":""}">
    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+   <input value="${esc(day.event||"")}" placeholder="行事" oninput="setMonthEvent('${d}',this.value)">
    <input value="${esc(day.theme||"")}" placeholder="テーマ" oninput="setMonthTheme('${d}',this.value)">
    <textarea placeholder="連絡事項" oninput="setMonthNotes('${d}',this.value)">${esc(day.notes||"")}</textarea>
    <button class="btn secondary small" onclick="openMonthDay('${d}')">1日入力を開く</button>
@@ -1685,6 +1691,7 @@ function renderMonth(){
  }).join("");
  el("monthGrid").innerHTML=weekdays+blanks+cells;
 }
+window.setMonthEvent=(d,v)=>{monthDraft[d].event=v;monthDirty=true};
 window.setMonthTheme=(d,v)=>{monthDraft[d].theme=v;monthDirty=true};
 window.setMonthNotes=(d,v)=>{monthDraft[d].notes=v;monthDirty=true};
 window.openMonthDay=d=>{if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)};
