@@ -12,5 +12,6 @@ window.FIREBASE_CONFIG = {
 // ログインIDとFirebase Authenticationのメールアドレスの対応表
 // 左側がログイン画面で入力するID、右側がAuthenticationに登録したメールです。
 window.LOGIN_ID_MAP = {
-  "hamawakiac": "hamawakiac@gmail.com"
+  "hamawakiac": "hamawakiac@gmail.com",
+  "dfiburi": "dfiburi@gmail.com"
 };
