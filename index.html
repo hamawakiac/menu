@@ -1655,21 +1655,22 @@ function buildSelectedDayPages(){
  const notes=parsed.querySelector(".notice")?.outerHTML||"";
  const lastUpdated=Array.from(parsed.querySelectorAll(":scope > p.muted")).map(node=>node.outerHTML).join("");
 
- function selectedDayPage(label,block,extraClass){
+ const selectedPrintTitle=`${fmt(selected).replace(/^20/,"")}の練習`;
+
+ function selectedDayPage(block,extraClass){
   const page=document.createElement("section");
   page.className=`print-page print-today-page ${extraClass}`;
   page.innerHTML=`<div class="print-page-inner today-print-content">
    <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-   <div class="print-page-label">${label}</div>
-   <p style="text-align:center;font-weight:900;font-size:15pt;margin:0 0 2mm">${fmt(selected)}</p>
+   <div class="print-page-label">${selectedPrintTitle}</div>
    ${topInfo}<div class="today-board">${block}</div>${notes}${lastUpdated}
   </div>`;
   return page;
  }
 
  return [
-  selectedDayPage("選択日の全体練習",overallBlock,"print-overall-page"),
-  selectedDayPage("選択日の専門種目練習",specialtyBlock,"print-specialty-page")
+  selectedDayPage(overallBlock,"print-overall-page"),
+  selectedDayPage(specialtyBlock,"print-specialty-page")
  ];
 }
 
