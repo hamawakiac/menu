@@ -546,6 +546,17 @@ html,body{max-width:100%;overflow-x:hidden}
  line-height:1.45;
 }
 @media print{.today-menu-caution{font-size:9pt!important;color:#333!important}.entered-caution{color:#333!important}}
+
+.brand-title{display:inline-block}
+.brand-underline{height:4px;width:100%;margin-top:6px;border-radius:999px;background:#f3df24}
+.entered-days-table-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fff}
+.entered-days-table{width:100%;min-width:920px;border-collapse:collapse;table-layout:fixed}
+.entered-days-table th,.entered-days-table td{padding:11px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-size:12px;line-height:1.5}
+.entered-days-table th{background:#eaf7f2;color:#235649;font-weight:900;white-space:nowrap}
+.entered-days-table th:nth-child(1){width:145px}.entered-days-table th:nth-child(2){width:150px}.entered-days-table th:nth-child(5){width:130px}.entered-days-table th:nth-child(6){width:130px}
+.entered-days-table tr:last-child td{border-bottom:0}.entered-days-table th:last-child,.entered-days-table td:last-child{border-right:0}
+.entered-days-table ul{margin:0;padding-left:17px}.entered-days-table .actions{gap:5px}
+.menu-updater,.today-menu-updater{display:block;margin-top:5px;color:#475569;font-size:11px;font-weight:700;line-height:1.4}
 </style>
 
 
@@ -942,7 +953,7 @@ header,
 </div>
 
 <header><div class="head">
- <div class="headtop"><div><h1>浜脇AC│トレーニングメニュー</h1><div style="height:4px;width:190px;margin-top:6px;border-radius:999px;background:linear-gradient(90deg,#1d8fbf,#62a34a,#f1dc22,#111)"></div></div>
+ <div class="headtop"><div class="brand-title"><h1>浜脇AC│トレーニングメニュー</h1><div class="brand-underline"></div></div>
   <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="userstatus"></span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
  </div>
  <nav>
@@ -960,7 +971,7 @@ header,
   <div class="toolbar no-print"><input id="todayDate" type="date" style="width:auto"><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
   <div id="todayContent"></div>
  </div>
- <div class="panel" id="enteredDaysPanel"><h2>入力済み日程</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div id="dayList" class="entered-days-list"></div></div>
+ 
 </section>
 
 <section id="v-daily" class="view">
@@ -974,6 +985,7 @@ header,
   </aside>
   <div id="dailySections"></div>
  </div>
+ <div class="panel" id="enteredDaysPanel"><h2>入力済み日程一覧表</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div class="entered-days-table-wrap"><table class="entered-days-table"><thead><tr><th>日付</th><th>テーマ</th><th>全体練習</th><th>各種目練習</th><th>更新者</th><th>操作</th></tr></thead><tbody id="dayList"></tbody></table></div></div>
 </section>
 
 <section id="v-weekly" class="view">
@@ -1148,9 +1160,15 @@ function finalizeDayForSave(date,rawDay){
 }
 function formatEditTime(value){
  if(!value)return "";
- const d=new Date(value);
- if(Number.isNaN(d.getTime()))return String(value);
+ const d=typeof value?.toDate==="function"?value.toDate():new Date(value);
+ if(Number.isNaN(d.getTime()))return "";
  return d.toLocaleString("ja-JP",{year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function menuUpdaterHTML(menu,cssClass="menu-updater"){
+ const updater=nameForDisplay(menu?.updatedBy||"");
+ const updatedAt=formatEditTime(menu?.updatedAt||menu?.updatedAtText||"");
+ if(!updater&&!updatedAt)return `<span class="${cssClass}">更新者：記録なし</span>`;
+ return `<span class="${cssClass}">更新者：${esc(updater||"記録なし")}${updatedAt?`／${esc(updatedAt)}`:""}</span>`;
 }
 function todayISO(){const now=new Date();const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,"0"),d=String(now.getDate()).padStart(2,"0");return `${y}-${m}-${d}`}
 function parseISO(v){const [y,m,d]=String(v).split("-").map(Number);return new Date(Date.UTC(y,m-1,d))}
@@ -1327,6 +1345,7 @@ function dayHTML(date,day){
      <strong>${esc(m.name)}</strong>
      ${detail?`<small>${esc(detail)}</small>`:""}
      ${m.caution?`<small class="today-menu-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}
+     ${menuUpdaterHTML(m,"today-menu-updater")}
     </div>
     ${m.duration?`<span class="today-menu-time">${esc(m.duration)}</span>`:""}
    </div>`;
@@ -1477,16 +1496,17 @@ function compactDayCard(date,day){
   return ids.flatMap(id=>(day.sections?.[id]||[]).map(mid=>menus.find(m=>m.id===mid)).filter(Boolean));
  }
  function compactItems(items){
-  return items.map(m=>`<li><span>${esc(m.name)}</span>${m.caution?`<small class="entered-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}</li>`).join("");
+  return items.length?`<ul>${items.map(m=>`<li>${esc(m.name)}</li>`).join("")}</ul>`:`<span class="muted">なし</span>`;
  }
  const overall=menuItems(overallIds),events=menuItems(eventIds);
- return `<article class="entered-day-card">
-  <div class="toolbar"><div><h3>${fmt(date)}</h3>${day.theme?`<div><b>テーマ：</b>${esc(day.theme)}</div>`:""}</div><div class="actions"><button class="btn secondary small" onclick="showTodayDate('${date}')">表示</button><button class="btn secondary small viewer-hide" onclick="openDay('${date}')">編集</button></div></div>
-  <div class="entered-day-groups">
-   <div class="entered-day-group"><strong>全体練習</strong>${overall.length?`<ul>${compactItems(overall)}</ul>`:`<span class="muted">なし</span>`}</div>
-   <div class="entered-day-group"><strong>各種目練習</strong>${events.length?`<ul>${compactItems(events)}</ul>`:`<span class="muted">なし</span>`}</div>
-  </div>
- </article>`;
+ return `<tr>
+  <td><strong>${fmt(date)}</strong></td>
+  <td>${day.theme?esc(day.theme):`<span class="muted">なし</span>`}</td>
+  <td>${compactItems(overall)}</td>
+  <td>${compactItems(events)}</td>
+  <td>${esc(nameForDisplay(day.updatedBy||"")||"記録なし")}</td>
+  <td><div class="actions"><button class="btn secondary small" onclick="showTodayDate('${date}')">表示</button><button class="btn secondary small viewer-hide" onclick="openDay('${date}')">編集</button></div></td>
+ </tr>`;
 }
 window.showTodayDate=date=>{el("todayDate").value=date;renderToday();scrollTo({top:0,behavior:"smooth"})};
 function renderToday(){
@@ -1499,7 +1519,7 @@ function renderToday(){
   printBtn.title=printable?"この日のメニューを印刷":"未作成の日は印刷できません";
  }
  const list=Object.keys(days).filter(d=>dayHasContent(days[d])).sort();
- el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<div class="empty">入力済みの日はありません</div>`;
+ el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<tr><td colspan="6"><div class="empty">入力済みの日はありません</div></td></tr>`;
  applyRoleUI();
 }
 window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
@@ -1525,7 +1545,7 @@ window.addEventListener("afterprint",cleanupOnePagePrint);
 
 function renderMenus(){
  const c=el("filterCat").value,q=el("filterText").value.toLowerCase(),list=menus.filter(m=>(!c||m.category===c)&&(!q||(m.name+" "+m.detail+" "+m.target).toLowerCase().includes(q)));
- el("menuList").innerHTML=list.length?list.map(m=>`<div class="menu ${cls(m.category)}"><div class="menu-rail">${esc(m.category.replace("全体練習メニュー","全体").replace("全体メニュー","全体").replace("メニュー",""))}</div><div class="menu-content"><h4>${esc(m.name)}</h4><span class="chip ${cls(m.category)}"><i></i>${esc(m.category)}</span>${m.detail?`<p>${esc(m.detail)}</p>`:""}<div class="meta">${esc([m.sets,m.intensity,m.rest,m.duration,m.target].filter(Boolean).join("／"))}</div><div class="actions"><button class="btn secondary small" onclick="editMenu('${m.id}')">編集</button><button class="btn danger small" onclick="deleteMenu('${m.id}')">削除</button></div></div></div>`).join(""):`<div class="empty">該当なし</div>`
+ el("menuList").innerHTML=list.length?list.map(m=>`<div class="menu ${cls(m.category)}"><div class="menu-rail">${esc(m.category.replace("全体練習メニュー","全体").replace("全体メニュー","全体").replace("メニュー",""))}</div><div class="menu-content"><h4>${esc(m.name)}</h4><span class="chip ${cls(m.category)}"><i></i>${esc(m.category)}</span>${m.detail?`<p>${esc(m.detail)}</p>`:""}<div class="meta">${esc([m.sets,m.intensity,m.rest,m.duration,m.target].filter(Boolean).join("／"))}</div>${menuUpdaterHTML(m)}<div class="actions"><button class="btn secondary small" onclick="editMenu('${m.id}')">編集</button><button class="btn danger small" onclick="deleteMenu('${m.id}')">削除</button></div></div></div>`).join(""):`<div class="empty">該当なし</div>`
 }
 el("filterCat").oninput=renderMenus;el("filterText").oninput=renderMenus;
 
@@ -1533,8 +1553,9 @@ function menuFormData(){
  return{id:el("editId").value||crypto.randomUUID(),name:el("name").value.trim(),category:el("category").value,detail:el("detail").value.trim(),sets:el("sets").value.trim(),intensity:el("intensity").value.trim(),rest:el("rest").value.trim(),duration:el("duration").value.trim(),target:el("target").value.trim(),caution:el("caution").value.trim()}
 }
 async function saveMenuDoc(m){
- if(cloud)await db.collection("teams").doc(TEAM_ID).collection("menus").doc(m.id).set({...m,updatedBy:currentUpdaterName(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
- const i=menus.findIndex(x=>x.id===m.id);if(i>=0)menus[i]=m;else menus.push(m);localSave();renderAll();markSaved();
+ const savedMenu={...m,updatedBy:currentUpdaterName(),updatedAtText:new Date().toISOString()};
+ if(cloud)await db.collection("teams").doc(TEAM_ID).collection("menus").doc(m.id).set({...savedMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+ const i=menus.findIndex(x=>x.id===m.id);if(i>=0)menus[i]=savedMenu;else menus.push(savedMenu);localSave();renderAll();markSaved();
 }
 el("saveMenu").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const m=menuFormData();if(!m.name)return alert("メニュー名を入力してください");try{await saveMenuDoc(m);resetMenu();nav("menus");setTimeout(()=>el("menuList").scrollIntoView({behavior:"smooth",block:"start"}),50)}catch(e){console.error(e);alert("メニューの保存に失敗しました。通信状態を確認してください。")}}
 function resetMenu(){["editId","name","detail","sets","intensity","rest","duration","target","caution"].forEach(i=>el(i).value="");el("category").value=CATS[0];el("formTitle").textContent="メニュー登録・編集"}
