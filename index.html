@@ -1592,49 +1592,63 @@ function dayHTML(date,day){
   <p class="muted">最終更新：${esc(nameForDisplay(day.updatedBy||""))}</p>`;
 }
 
-function mmToPx(mm){
+let cachedPrintMaxHeightPx=0;
+function getPrintMaxHeightPx(){
+ if(cachedPrintMaxHeightPx>0)return cachedPrintMaxHeightPx;
  const probe=document.createElement("div");
- probe.style.cssText=`position:absolute;left:-9999px;top:-9999px;width:${mm}mm;height:1mm;visibility:hidden;`;
+ probe.style.cssText="position:fixed;left:-10000px;top:0;width:1mm;height:279mm;visibility:hidden;pointer-events:none";
  document.body.appendChild(probe);
- const px=probe.getBoundingClientRect().width;
+ cachedPrintMaxHeightPx=probe.getBoundingClientRect().height||1054;
  probe.remove();
- return px;
+ return cachedPrintMaxHeightPx;
 }
-function fitPrintPageToA4(page){
- const inner=page.querySelector(".print-page-inner");
- if(!inner)return;
 
- inner.style.setProperty("--content-scale","1");
- inner.style.setProperty("width","100%","important");
- void inner.offsetHeight;
+function fitAllPrintPages(root){
+ const pages=Array.from(root.querySelectorAll(".print-page"));
+ const inners=pages.map(page=>page.querySelector(".print-page-inner"));
 
- const maxH=mmToPx(279);
- const naturalH=Math.max(inner.scrollHeight,1);
- let scale=Math.min(1,maxH/naturalH);
- if(!Number.isFinite(scale)||scale<=0)scale=1;
- scale=Math.max(0.20,Math.floor(scale*1000)/1000);
+ // 書き込みを先にまとめ、ブラウザの再レイアウトを1回に抑える。
+ inners.forEach(inner=>{
+  if(!inner)return;
+  inner.style.setProperty("--content-scale","1");
+  inner.style.setProperty("width","100%","important");
+ });
+ void root.offsetHeight;
 
- // Chromiumのzoomで縦だけ縮小し、元幅を逆補正して見た目を用紙幅いっぱいに保つ。
- inner.style.setProperty("--content-scale",String(scale));
- inner.style.setProperty("width",(100/scale)+"%","important");
- page.dataset.printScale=String(scale);
+ const maxH=getPrintMaxHeightPx();
+ const scales=inners.map(inner=>{
+  if(!inner)return 1;
+  const naturalH=Math.max(inner.scrollHeight,1);
+  let scale=naturalH>maxH?maxH/naturalH:1;
+  if(!Number.isFinite(scale)||scale<=0)scale=1;
+  return Math.max(.28,Math.floor(scale*1000)/1000);
+ });
+
+ inners.forEach((inner,index)=>{
+  if(!inner)return;
+  const scale=scales[index];
+  if(scale<.999){
+   inner.style.setProperty("--content-scale",String(scale));
+   inner.style.setProperty("width",(100/scale)+"%","important");
+  }
+  pages[index].dataset.printScale=String(scale);
+ });
 }
+
 function mountPrintPages(pages){
  cleanupOnePagePrint();
  if(!pages||!pages.length)return false;
  const root=document.createElement("div");
  root.id="printRoot";
- pages.forEach(page=>root.appendChild(page));
- root.style.position="absolute";
- root.style.left="-10000px";
- root.style.top="0";
- root.style.display="block";
- root.style.width="198mm";
- root.style.background="#fff";
+ const fragment=document.createDocumentFragment();
+ pages.forEach(page=>fragment.appendChild(page));
+ root.appendChild(fragment);
+ root.style.cssText="position:fixed;left:-10000px;top:0;display:block;width:198mm;background:#fff;visibility:hidden;pointer-events:none";
  document.body.appendChild(root);
- root.querySelectorAll(".print-page").forEach(fitPrintPageToA4);
+ fitAllPrintPages(root);
  root.style.position="static";
  root.style.left="auto";
+ root.style.visibility="visible";
  return true;
 }
 
@@ -1702,7 +1716,7 @@ function performPreparedPrint(builder){
   alert("印刷データを作成できませんでした。画面を再読み込みして、もう一度お試しください。");
   return;
  }
- requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),120)));
+ requestAnimationFrame(()=>setTimeout(()=>window.print(),20));
 }
 
 function cleanupOnePagePrint(){
