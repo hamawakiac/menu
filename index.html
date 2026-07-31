@@ -557,6 +557,11 @@ html,body{max-width:100%;overflow-x:hidden}
 .entered-days-table tr:last-child td{border-bottom:0}.entered-days-table th:last-child,.entered-days-table td:last-child{border-right:0}
 .entered-days-table ul{margin:0;padding-left:17px}.entered-days-table .actions{gap:5px}
 .menu-updater,.today-menu-updater{display:block;margin-top:5px;color:#475569;font-size:11px;font-weight:700;line-height:1.4}
+
+.item-added-by,.week-item-added-by{
+ display:block;margin-top:4px;color:#475569;font-size:11px;font-weight:700;line-height:1.35;
+}
+.week-item-added-by{font-size:9px;font-weight:600}
 </style>
 
 
@@ -957,7 +962,7 @@ header,
   <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="userstatus"></span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
  </div>
  <nav>
-  <button class="active" data-view="today">📓 練習メニュー</button>
+  <button class="active" data-view="today">📓 メニュー一覧</button>
   <button data-view="daily">✏️ 1日入力</button>
   <button data-view="weekly">✏️ 月間予定入力</button>
   <button data-view="monthly">📅 月間入力</button>
@@ -1125,16 +1130,26 @@ function refreshUserText(){
 }
 function cls(cat){return({"全体メニュー":"cat-overall","全体メニュー（前半）":"cat-overall","全体練習メニュー（本練習）":"cat-overall","全体メニュー（後半）":"cat-overall","筋トレメニュー":"cat-strength","短距離メニュー":"cat-sprint","ハードルメニュー":"cat-hurdle","跳躍メニュー":"cat-jump","投擲メニュー":"cat-throw","長距離メニュー":"cat-distance","ドリルメニュー":"cat-drill"})[cat]||""}
 const SPECIALTY_SECTION_IDS=["sprint","hurdle","jump","throw","distance","middleStrength"];
-function blankDay(){const sections={};SECTIONS.forEach(s=>sections[s.id]=[]);return{theme:"",notes:"",sections,sectionMeta:{}}}
+function blankDay(){
+ const sections={},sectionItemMeta={};
+ SECTIONS.forEach(s=>{sections[s.id]=[];sectionItemMeta[s.id]=[]});
+ return{theme:"",notes:"",sections,sectionMeta:{},sectionItemMeta};
+}
 function normalizeDay(day){
  const base=blankDay();
  const src=(day&&typeof day==="object")?structuredClone(day):{};
  const sections=(src.sections&&typeof src.sections==="object")?src.sections:{};
+ const sectionItemMeta=(src.sectionItemMeta&&typeof src.sectionItemMeta==="object")?src.sectionItemMeta:{};
  SECTIONS.forEach(s=>{
   if(!Array.isArray(sections[s.id]))sections[s.id]=[];
+  if(!Array.isArray(sectionItemMeta[s.id]))sectionItemMeta[s.id]=[];
+  sectionItemMeta[s.id]=sections[s.id].map((_,i)=>{
+   const meta=sectionItemMeta[s.id][i];
+   return meta&&typeof meta==="object"?meta:{};
+  });
  });
  const sectionMeta=(src.sectionMeta&&typeof src.sectionMeta==="object")?src.sectionMeta:{};
- return{...base,...src,sections,sectionMeta};
+ return{...base,...src,sections,sectionMeta,sectionItemMeta};
 }
 function normalizeDaysMap(map){
  const out={};
@@ -1296,15 +1311,34 @@ function fillBasics(){
 function available(section){return menus.filter(m=>m.category===section.cat)}
 function optionHTML(section){return `<option value="">選択</option>`+available(section).map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join("")}
 
+function itemUpdaterHTML(meta,cssClass="today-menu-updater"){
+ const updater=nameForDisplay(meta?.addedBy||meta?.updatedBy||"");
+ const time=formatEditTime(meta?.addedAtText||meta?.updatedAtText||"");
+ return `<span class="${cssClass}">追加者：${esc(updater||"記録なし")}${time?`／${esc(time)}`:""}</span>`;
+}
 function renderDaily(){
  daily=normalizeDay(daily);
  el("dailySections").innerHTML=SECTIONS.map(s=>{
   const ids=daily.sections[s.id]||[];
-  return `<div class="section ${cls(s.cat)}"><h3>${esc(s.label)}</h3><div class="picker"><select id="pick-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addDaily('${s.id}')">追加</button></div><div class="items">${ids.length?ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="item ${cls(m.category)}"><div><b>${esc(m.name)}</b><br><small>${esc([m.sets,m.intensity,m.rest].filter(Boolean).join("／"))}</small></div><button class="btn danger small" onclick="removeDaily('${s.id}',${i})">削除</button></div>`:""}).join(""):`<div class="empty">未設定</div>`}</div></div>`
+  const metas=daily.sectionItemMeta?.[s.id]||[];
+  return `<div class="section ${cls(s.cat)}"><h3>${esc(s.label)}</h3><div class="picker"><select id="pick-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addDaily('${s.id}')">追加</button></div><div class="items">${ids.length?ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="item ${cls(m.category)}"><div><b>${esc(m.name)}</b><br><small>${esc([m.sets,m.intensity,m.rest].filter(Boolean).join("／"))}</small>${itemUpdaterHTML(metas[i],"item-added-by")}</div><button class="btn danger small" onclick="removeDaily('${s.id}',${i})">削除</button></div>`:""}).join(""):`<div class="empty">未設定</div>`}</div></div>`
  }).join("")
 }
-window.addDaily=id=>{daily=normalizeDay(daily);const s=el("pick-"+id);if(s&&s.value){if(!Array.isArray(daily.sections[id]))daily.sections[id]=[];daily.sections[id].push(s.value);dailyDirty=true;dailyChangedSections.add(id);renderDaily()}}
-window.removeDaily=(id,i)=>{daily.sections[id].splice(i,1);dailyDirty=true;dailyChangedSections.add(id);renderDaily()}
+window.addDaily=id=>{
+ daily=normalizeDay(daily);
+ const picker=el("pick-"+id);
+ if(picker&&picker.value){
+  daily.sections[id].push(picker.value);
+  daily.sectionItemMeta[id].push({addedBy:currentUpdaterName(),addedAtText:new Date().toISOString()});
+  dailyDirty=true;dailyChangedSections.add(id);renderDaily();
+ }
+}
+window.removeDaily=(id,i)=>{
+ daily=normalizeDay(daily);
+ daily.sections[id].splice(i,1);
+ daily.sectionItemMeta[id].splice(i,1);
+ dailyDirty=true;dailyChangedSections.add(id);renderDaily();
+}
 
 function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;dailyChangedSections=new Set();previousDailyDate=date;el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
 el("dailyDate").onfocus=e=>{previousDailyDate=e.target.value};
@@ -1340,7 +1374,8 @@ function dayHTML(date,day){
   const ids=day.sections?.[section.id]||[];
   if(!ids.length) return "";
 
-  const rows=ids.map(id=>{
+  const metas=day.sectionItemMeta?.[section.id]||[];
+  const rows=ids.map((id,itemIndex)=>{
    const m=menus.find(x=>x.id===id);
    if(!m) return "";
    const detail=[m.detail,m.sets,m.intensity,m.rest].filter(Boolean).join("／");
@@ -1349,18 +1384,13 @@ function dayHTML(date,day){
      <strong>${esc(m.name)}</strong>
      ${detail?`<small>${esc(detail)}</small>`:""}
      ${m.caution?`<small class="today-menu-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}
-     ${(()=>{const sm=day.sectionMeta?.[section.id];const updater=SPECIALTY_SECTION_IDS.includes(section.id)?nameForDisplay(sm?.updatedBy||""):nameForDisplay(day.updatedBy||"");const time=SPECIALTY_SECTION_IDS.includes(section.id)?formatEditTime(sm?.updatedAtText||""):formatEditTime(day.updatedAtText||day.updatedAt||"");return `<span class="today-menu-updater">更新者：${esc(updater||"記録なし")}${time?`／${esc(time)}`:""}</span>`})()}
+     ${itemUpdaterHTML(metas[itemIndex])}
     </div>
     ${m.duration?`<span class="today-menu-time">${esc(m.duration)}</span>`:""}
    </div>`;
   }).join("");
 
-  const meta=day.sectionMeta?.[section.id];
-  const specialtyMeta=SPECIALTY_SECTION_IDS.includes(section.id)
-   ? `<div class="section-edit-meta">${meta
-      ? `最終編集：${esc(nameForDisplay(meta.updatedBy||""))}／${esc(formatEditTime(meta.updatedAtText||""))}`
-      : "最終編集：記録なし"}</div>`
-   : "";
+  const specialtyMeta="";
   return `<div class="today-subsection ${cls(section.cat)}">
    <div class="today-subtitle">
     <span>${esc(section.label)}</span>
@@ -1565,7 +1595,13 @@ el("saveMenu").onclick=async()=>{if(!canEditApp())return alert("閲覧専用ア�
 function resetMenu(){["editId","name","detail","sets","intensity","rest","duration","target","caution"].forEach(i=>el(i).value="");el("category").value=CATS[0];el("formTitle").textContent="メニュー登録・編集"}
 el("resetMenu").onclick=resetMenu;
 window.editMenu=id=>{const m=menus.find(x=>x.id===id);if(!m)return;Object.entries({editId:m.id,name:m.name,category:m.category,detail:m.detail,sets:m.sets,intensity:m.intensity,rest:m.rest,duration:m.duration,target:m.target,caution:m.caution}).forEach(([k,v])=>el(k).value=v||"");el("formTitle").textContent="メニュー編集";nav("menus");setTimeout(()=>el("formTitle").scrollIntoView({behavior:"smooth",block:"start"}),50)}
-window.deleteMenu=async id=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const m=menus.find(x=>x.id===id);if(!m||!confirm("削除しますか？"))return;menus=menus.filter(x=>x.id!==id);Object.entries(days).forEach(([date,d])=>{d=normalizeDay(d);SECTIONS.forEach(s=>d.sections[s.id]=d.sections[s.id].filter(x=>x!==id));days[date]=d});localSave();renderAll();if(cloud){await db.collection("teams").doc(TEAM_ID).collection("menus").doc(id).delete();const batch=db.batch();Object.entries(days).forEach(([date,d])=>batch.set(db.collection("teams").doc(TEAM_ID).collection("days").doc(date),d,{merge:true}));await batch.commit()}markSaved("削除済み")}
+window.deleteMenu=async id=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const m=menus.find(x=>x.id===id);if(!m||!confirm("削除しますか？"))return;menus=menus.filter(x=>x.id!==id);Object.entries(days).forEach(([date,d])=>{d=normalizeDay(d);SECTIONS.forEach(section=>{
+ const oldIds=d.sections[section.id]||[];
+ const oldMeta=d.sectionItemMeta?.[section.id]||[];
+ const keep=oldIds.map((menuId,index)=>({menuId,meta:oldMeta[index]||{}})).filter(item=>item.menuId!==id);
+ d.sections[section.id]=keep.map(item=>item.menuId);
+ d.sectionItemMeta[section.id]=keep.map(item=>item.meta);
+});days[date]=d});localSave();renderAll();if(cloud){await db.collection("teams").doc(TEAM_ID).collection("menus").doc(id).delete();const batch=db.batch();Object.entries(days).forEach(([date,d])=>batch.set(db.collection("teams").doc(TEAM_ID).collection("days").doc(date),d,{merge:true}));await batch.commit()}markSaved("削除済み")}
 
 function loadWeek(){weekDraft={};for(let i=0;i<7;i++){const d=addDays(weekStart,i);weekDraft[d]=normalizeDay(days[d])}weekDirty=false}
 function renderWeek(){
@@ -1577,10 +1613,23 @@ function renderWeek(){
  el("weekDate").value=weekStart;
  el("weekTitle").textContent=`${dates[0]} ～ ${dates[6]}（月〜日）`;
  el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
- el("weekBody").innerHTML=SECTIONS.map(s=>`<tr><th class="${cls(s.cat)}">${esc(s.label)}</th>${dates.map(d=>{const ids=weekDraft[d].sections[s.id]||[];return `<td><div class="weekcell ${cls(s.cat)}"><div class="picker"><select id="w-${d}-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addWeek('${d}','${s.id}')">追加</button></div>${ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="weekitem ${cls(m.category)}"><span>${esc(m.name)}</span><button class="x" onclick="removeWeek('${d}','${s.id}',${i})">×</button></div>`:""}).join("")}</div></td>`}).join("")}</tr>`).join("")
+ el("weekBody").innerHTML=SECTIONS.map(s=>`<tr><th class="${cls(s.cat)}">${esc(s.label)}</th>${dates.map(d=>{const ids=weekDraft[d].sections[s.id]||[];const metas=weekDraft[d].sectionItemMeta?.[s.id]||[];return `<td><div class="weekcell ${cls(s.cat)}"><div class="picker"><select id="w-${d}-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addWeek('${d}','${s.id}')">追加</button></div>${ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="weekitem ${cls(m.category)}"><span>${esc(m.name)}${itemUpdaterHTML(metas[i],"week-item-added-by")}</span><button class="x" onclick="removeWeek('${d}','${s.id}',${i})">×</button></div>`:""}).join("")}</div></td>`}).join("")}</tr>`).join("")
 }
-window.addWeek=(d,s)=>{const p=el(`w-${d}-${s}`);if(p.value){weekDraft[d].sections[s].push(p.value);weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek()}}
-window.removeWeek=(d,s,i)=>{weekDraft[d].sections[s].splice(i,1);weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek()}
+window.addWeek=(d,s)=>{
+ const picker=el(`w-${d}-${s}`);
+ if(picker.value){
+  weekDraft[d]=normalizeDay(weekDraft[d]);
+  weekDraft[d].sections[s].push(picker.value);
+  weekDraft[d].sectionItemMeta[s].push({addedBy:currentUpdaterName(),addedAtText:new Date().toISOString()});
+  weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek();
+ }
+}
+window.removeWeek=(d,s,i)=>{
+ weekDraft[d]=normalizeDay(weekDraft[d]);
+ weekDraft[d].sections[s].splice(i,1);
+ weekDraft[d].sectionItemMeta[s].splice(i,1);
+ weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek();
+}
 window.setWeekTheme=(d,v)=>{weekDraft[d].theme=v;weekDirty=true};
 function shiftWeek(n){weekStart=addDays(weekStart,n*7);loadWeek();renderWeek()}
 el("prevWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(-1)};
