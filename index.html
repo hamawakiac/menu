@@ -957,7 +957,7 @@ header,
   <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="userstatus"></span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
  </div>
  <nav>
-  <button class="active" data-view="today">📓 メニュー一覧</button>
+  <button class="active" data-view="today">📓 練習メニュー</button>
   <button data-view="daily">✏️ 1日入力</button>
   <button data-view="weekly">✏️ 月間予定入力</button>
   <button data-view="monthly">📅 月間入力</button>
@@ -1082,6 +1082,7 @@ const SECTIONS=[
 ];
 let menus=[],days={},daily=blankDay(),weekStart=getMonday(todayISO()),weekDraft={},monthCursor=todayISO().slice(0,7),monthDraft={};
 let dailyDirty=false,weekDirty=false,monthDirty=false;
+let dailyChangedSections=new Set(),weekChangedSections={},monthChangedSections={};
 let currentView="today";
 let previousDailyDate="";
 let previousWeekDate="";
@@ -1145,14 +1146,17 @@ function sectionChanged(beforeDay,afterDay,sectionId){
  const after=normalizeDay(afterDay).sections[sectionId]||[];
  return JSON.stringify(before)!==JSON.stringify(after);
 }
-function finalizeDayForSave(date,rawDay){
+function finalizeDayForSave(date,rawDay,explicitChangedSections=null){
  const before=normalizeDay(days[date]);
  const data=normalizeDay(rawDay);
  const nowISO=new Date().toISOString();
  const editor=currentUpdaterName();
  const sectionMeta={...(data.sectionMeta||{})};
+ const changedSet=explicitChangedSections instanceof Set
+  ? explicitChangedSections
+  : new Set(Array.isArray(explicitChangedSections)?explicitChangedSections:[]);
  SPECIALTY_SECTION_IDS.forEach(sectionId=>{
-  if(sectionChanged(before,data,sectionId)){
+  if(changedSet.has(sectionId) || sectionChanged(before,data,sectionId)){
    sectionMeta[sectionId]={updatedBy:editor,updatedAtText:nowISO};
   }
  });
@@ -1299,10 +1303,10 @@ function renderDaily(){
   return `<div class="section ${cls(s.cat)}"><h3>${esc(s.label)}</h3><div class="picker"><select id="pick-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addDaily('${s.id}')">追加</button></div><div class="items">${ids.length?ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="item ${cls(m.category)}"><div><b>${esc(m.name)}</b><br><small>${esc([m.sets,m.intensity,m.rest].filter(Boolean).join("／"))}</small></div><button class="btn danger small" onclick="removeDaily('${s.id}',${i})">削除</button></div>`:""}).join(""):`<div class="empty">未設定</div>`}</div></div>`
  }).join("")
 }
-window.addDaily=id=>{daily=normalizeDay(daily);const s=el("pick-"+id);if(s&&s.value){if(!Array.isArray(daily.sections[id]))daily.sections[id]=[];daily.sections[id].push(s.value);dailyDirty=true;renderDaily()}}
-window.removeDaily=(id,i)=>{daily.sections[id].splice(i,1);dailyDirty=true;renderDaily()}
+window.addDaily=id=>{daily=normalizeDay(daily);const s=el("pick-"+id);if(s&&s.value){if(!Array.isArray(daily.sections[id]))daily.sections[id]=[];daily.sections[id].push(s.value);dailyDirty=true;dailyChangedSections.add(id);renderDaily()}}
+window.removeDaily=(id,i)=>{daily.sections[id].splice(i,1);dailyDirty=true;dailyChangedSections.add(id);renderDaily()}
 
-function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;previousDailyDate=date;el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
+function loadDay(date){daily=normalizeDay(days[date]);dailyDirty=false;dailyChangedSections=new Set();previousDailyDate=date;el("theme").value=daily.theme||"";el("notes").value=daily.notes||"";renderDaily()}
 el("dailyDate").onfocus=e=>{previousDailyDate=e.target.value};
 el("dailyDate").onchange=e=>{
  const next=e.target.value,previous=previousDailyDate||next;
@@ -1313,17 +1317,17 @@ el("theme").addEventListener("input",()=>dailyDirty=true);
 el("notes").addEventListener("input",()=>dailyDirty=true);
 
 async function saveDayDoc(date,data){
- data=finalizeDayForSave(date,data);
+ data=finalizeDayForSave(date,data,dailyChangedSections);
  if(cloud){
   await db.collection("teams").doc(TEAM_ID).collection("days").doc(date).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
  }
- days[date]=data;daily=normalizeDay(data);dailyDirty=false;localSave();renderAll();markSaved();
+ days[date]=data;daily=normalizeDay(data);dailyDirty=false;dailyChangedSections=new Set();localSave();renderAll();markSaved();
 }
 async function deleteDayDoc(date){delete days[date];localSave();renderAll();if(cloud)await db.collection("teams").doc(TEAM_ID).collection("days").doc(date).delete();markSaved("削除済み")}
 
 el("saveDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const d=el("dailyDate").value;if(!d)return alert("日付を選択してください");daily.theme=el("theme").value.trim();daily.notes=el("notes").value.trim();try{await saveDayDoc(d,daily);alert("保存しました")}catch(e){console.error(e);alert("保存に失敗しました。通信状態を確認して、もう一度保存してください。")}}
 el("deleteDay").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは削除できません。");const d=el("dailyDate").value;if(days[d]&&confirm(fmt(d)+"を削除しますか？")){await deleteDayDoc(d);loadDay(d)}}
-el("copyPrev").onclick=()=>{const d=addDays(el("dailyDate").value,-1);if(!days[d])return alert("前日のデータがありません");daily=structuredClone(days[d]);el("theme").value=(daily.theme||"")+"（コピー）";daily.theme=el("theme").value;el("notes").value=daily.notes||"";dailyDirty=true;renderDaily()}
+el("copyPrev").onclick=()=>{const d=addDays(el("dailyDate").value,-1);if(!days[d])return alert("前日のデータがありません");daily=structuredClone(days[d]);dailyChangedSections=new Set(SPECIALTY_SECTION_IDS.filter(id=>(daily.sections?.[id]||[]).length));el("theme").value=(daily.theme||"")+"（コピー）";daily.theme=el("theme").value;el("notes").value=daily.notes||"";dailyDirty=true;renderDaily()}
 
 function dayHTML(date,day){
  if(!day)return `<div class="empty">${fmt(date)}は未作成です</div>`;
@@ -1345,7 +1349,7 @@ function dayHTML(date,day){
      <strong>${esc(m.name)}</strong>
      ${detail?`<small>${esc(detail)}</small>`:""}
      ${m.caution?`<small class="today-menu-caution"><b>注意点：</b>${esc(m.caution)}</small>`:""}
-     ${menuUpdaterHTML(m,"today-menu-updater")}
+     ${(()=>{const sm=day.sectionMeta?.[section.id];const updater=SPECIALTY_SECTION_IDS.includes(section.id)?nameForDisplay(sm?.updatedBy||""):nameForDisplay(day.updatedBy||"");const time=SPECIALTY_SECTION_IDS.includes(section.id)?formatEditTime(sm?.updatedAtText||""):formatEditTime(day.updatedAtText||day.updatedAt||"");return `<span class="today-menu-updater">更新者：${esc(updater||"記録なし")}${time?`／${esc(time)}`:""}</span>`})()}
     </div>
     ${m.duration?`<span class="today-menu-time">${esc(m.duration)}</span>`:""}
    </div>`;
@@ -1575,8 +1579,8 @@ function renderWeek(){
  el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
  el("weekBody").innerHTML=SECTIONS.map(s=>`<tr><th class="${cls(s.cat)}">${esc(s.label)}</th>${dates.map(d=>{const ids=weekDraft[d].sections[s.id]||[];return `<td><div class="weekcell ${cls(s.cat)}"><div class="picker"><select id="w-${d}-${s.id}">${optionHTML(s)}</select><button class="btn primary small" onclick="addWeek('${d}','${s.id}')">追加</button></div>${ids.map((id,i)=>{const m=menus.find(x=>x.id===id);return m?`<div class="weekitem ${cls(m.category)}"><span>${esc(m.name)}</span><button class="x" onclick="removeWeek('${d}','${s.id}',${i})">×</button></div>`:""}).join("")}</div></td>`}).join("")}</tr>`).join("")
 }
-window.addWeek=(d,s)=>{const p=el(`w-${d}-${s}`);if(p.value){weekDraft[d].sections[s].push(p.value);weekDirty=true;renderWeek()}}
-window.removeWeek=(d,s,i)=>{weekDraft[d].sections[s].splice(i,1);weekDirty=true;renderWeek()}
+window.addWeek=(d,s)=>{const p=el(`w-${d}-${s}`);if(p.value){weekDraft[d].sections[s].push(p.value);weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek()}}
+window.removeWeek=(d,s,i)=>{weekDraft[d].sections[s].splice(i,1);weekDirty=true;if(!weekChangedSections[d])weekChangedSections[d]=new Set();weekChangedSections[d].add(s);renderWeek()}
 window.setWeekTheme=(d,v)=>{weekDraft[d].theme=v;weekDirty=true};
 function shiftWeek(n){weekStart=addDays(weekStart,n*7);loadWeek();renderWeek()}
 el("prevWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(-1)};
@@ -1592,7 +1596,7 @@ el("saveWeek").onclick=async()=>{
  if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
  try{
   const changed=Object.entries(weekDraft).filter(([date,d])=>dayHasContent(d)||dayHasContent(days[date]));
-  const finalized=changed.map(([date,rawDay])=>[date,finalizeDayForSave(date,rawDay)]);
+  const finalized=changed.map(([date,rawDay])=>[date,finalizeDayForSave(date,rawDay,weekChangedSections[date]||new Set())]);
   if(cloud){
    const batch=db.batch();
    for(const [date,d] of finalized){
