@@ -944,6 +944,29 @@ header,
  #printRoot .today-menu-row small,#printRoot .today-menu-caution,#printRoot .today-menu-time{font-size:10.2pt!important;line-height:1.45!important}
 }
 </style>
+
+<style id="current-week-summary-style">
+.current-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:14px}
+.current-week-day{border:1px solid var(--line);border-radius:13px;background:#fff;overflow:hidden;min-height:150px}
+.current-week-day-head{padding:9px 8px;text-align:center;font-weight:900;background:#eef8f4;border-bottom:1px solid var(--line);font-size:12px}
+.current-week-day.today .current-week-day-head{background:#f8e94e;color:#111}
+.current-week-day-body{padding:8px}
+.current-week-menu-list{margin:0;padding-left:17px;font-size:12px;line-height:1.5}
+.current-week-menu-list li{margin-bottom:4px;word-break:break-word}
+.current-week-empty{font-size:11px;color:#98a2b3;text-align:center;padding:14px 3px}
+@media(max-width:900px){.current-week-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.current-week-grid{grid-template-columns:1fr}}
+@media print{
+ #printRoot .weekly-print-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:1.4mm!important}
+ #printRoot .weekly-print-day{border:.3mm solid #777!important;border-radius:1.5mm!important;overflow:hidden!important;min-height:72mm!important;background:#fff!important}
+ #printRoot .weekly-print-head{padding:1.5mm 1mm!important;text-align:center!important;font-size:9pt!important;font-weight:900!important;background:#eef8f4!important;border-bottom:.3mm solid #aaa!important}
+ #printRoot .weekly-print-list{margin:0!important;padding:1.6mm 1.3mm 1.6mm 5mm!important;font-size:7.8pt!important;line-height:1.35!important}
+ #printRoot .weekly-print-list li{margin-bottom:1.2mm!important;word-break:break-word!important}
+ #printRoot .weekly-print-empty{padding:6mm 1mm!important;text-align:center!important;color:#777!important;font-size:8pt!important}
+ #printRoot .today-print-content .today-board{display:grid!important;grid-template-columns:1fr 1fr!important;gap:2mm!important}
+ #printRoot .today-print-content .today-major{min-width:0!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -976,7 +999,10 @@ header,
   <div class="toolbar no-print"><input id="todayDate" type="date" style="width:auto"><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
   <div id="todayContent"></div>
  </div>
- 
+ <div class="panel" id="currentWeekPanel">
+  <div class="toolbar"><div><h2 style="margin:0">今週の練習メニュー</h2><p id="currentWeekRange" class="muted" style="margin:4px 0 0"></p></div></div>
+  <div id="currentWeekContent" class="current-week-grid"></div>
+ </div>
 </section>
 
 <section id="v-daily" class="view">
@@ -991,7 +1017,7 @@ header,
   </aside>
   <div id="dailySections"></div>
  </div>
- <div class="panel" id="enteredDaysPanel"><h2>入力済み日程一覧表</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div class="entered-days-table-wrap"><table class="entered-days-table"><thead><tr><th>日付</th><th>行事</th><th>テーマ</th><th>全体練習</th><th>各種目練習</th><th>更新者</th><th>操作</th></tr></thead><tbody id="dayList"></tbody></table></div></div>
+ <div class="panel" id="enteredDaysPanel"><h2>入力済み日程一覧表</h2><p class="muted" style="margin-top:-6px">練習内容が入力されている日を日付順に表示します。</p><div class="entered-days-table-wrap"><table class="entered-days-table"><thead><tr><th>日付</th><th>行事</th><th>テーマ</th><th>全体練習</th><th>専門種目練習</th><th>更新者</th><th>操作</th></tr></thead><tbody id="dayList"></tbody></table></div></div>
 </section>
 
 <section id="v-weekly" class="view">
@@ -1429,7 +1455,7 @@ function dayHTML(date,day){
   </div>
   <div class="today-board">
    ${renderMajor("全体練習","overall",overallIds)}
-   ${renderMajor("各種目練習","events",eventIds)}
+   ${renderMajor("専門種目練習","events",eventIds)}
   </div>
   ${day.notes?`<div class="notice" style="margin-top:15px"><b>連絡事項</b><br>${esc(day.notes)}</div>`:""}
   <p class="muted">最終更新：${esc(nameForDisplay(day.updatedBy||""))}</p>`;
@@ -1470,41 +1496,29 @@ function prepareOnePagePrint(){
  const content=el("todayContent");
  if(!content)return false;
 
- const source=document.createElement("div");
- source.innerHTML=content.innerHTML;
- const majors=source.querySelectorAll(".today-major");
- if(majors.length<2)return false;
-
- const makePage=(major,index)=>{
-  const page=document.createElement("section");
-  page.className="print-page "+(index===0?"print-overall-page":"print-specialist-page");
-  const headerParts=[];
-  source.querySelectorAll(":scope > h2, :scope > p:not(.muted), :scope > .today-summary").forEach(n=>headerParts.push(n.outerHTML));
-  const copy=major.cloneNode(true);
-  const pageLabel=index===0?"全体練習メニュー":"専門練習メニュー";
-  const title=copy.querySelector(".today-major-title > span:first-child");
-  if(title)title.textContent=pageLabel;
-  page.innerHTML=`<div class="print-page-inner">
-    <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-    <div class="print-page-label">${pageLabel}</div>
-    ${headerParts.join("")}
-    <div class="today-board">${copy.outerHTML}</div>
-  </div>`;
-  // 連絡事項と最終更新は2ページ目の末尾にまとめる。
-  if(index===1){
-   const notice=source.querySelector(":scope > .notice");
-   const muted=source.querySelector(":scope > p.muted");
-   const inner=page.querySelector(".print-page-inner");
-   if(notice)inner.insertAdjacentHTML("beforeend",notice.outerHTML);
-   if(muted)inner.insertAdjacentHTML("beforeend",muted.outerHTML);
-  }
-  return page;
- };
-
  const root=document.createElement("div");
  root.id="printRoot";
- root.appendChild(makePage(majors[0],0));
- root.appendChild(makePage(majors[1],1));
+
+ const todayPage=document.createElement("section");
+ todayPage.className="print-page print-today-page";
+ todayPage.innerHTML=`<div class="print-page-inner today-print-content">
+  <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+  <div class="print-page-label">今日の練習メニュー</div>
+  ${content.innerHTML}
+ </div>`;
+
+ const week=weekSummaryData(selected);
+ const weekPage=document.createElement("section");
+ weekPage.className="print-page print-week-page";
+ weekPage.innerHTML=`<div class="print-page-inner">
+  <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+  <div class="print-page-label">今週の練習メニュー（月曜日～日曜日）</div>
+  <p style="text-align:center;font-weight:800;margin:0 0 3mm">${fmt(week[0].date)} ～ ${fmt(week[6].date)}</p>
+  ${weeklyPrintHTML(selected)}
+ </div>`;
+
+ root.appendChild(todayPage);
+ root.appendChild(weekPage);
  root.style.position="absolute";
  root.style.left="-10000px";
  root.style.top="0";
@@ -1546,6 +1560,43 @@ function compactDayCard(date,day){
   <td><div class="actions"><button class="btn secondary small" onclick="showTodayDate('${date}')">表示</button><button class="btn secondary small viewer-hide" onclick="openDay('${date}')">編集</button></div></td>
  </tr>`;
 }
+function menuTitlesForDay(day){
+ if(!day)return [];
+ const titles=[];
+ SECTIONS.forEach(section=>{
+  (day.sections?.[section.id]||[]).forEach(menuId=>{
+   const menu=menus.find(item=>item.id===menuId);
+   if(menu)titles.push(menu.name);
+  });
+ });
+ return titles;
+}
+function weekSummaryData(baseDate){
+ const monday=getMonday(baseDate||todayISO());
+ return Array.from({length:7},(_,index)=>{
+  const date=addDays(monday,index);
+  return {date,day:days[date],titles:menuTitlesForDay(days[date])};
+ });
+}
+function renderCurrentWeek(){
+ const selected=el("todayDate")?.value||todayISO();
+ const week=weekSummaryData(selected);
+ const range=el("currentWeekRange");
+ if(range)range.textContent=`${fmt(week[0].date)} ～ ${fmt(week[6].date)}`;
+ const host=el("currentWeekContent");
+ if(!host)return;
+ host.innerHTML=week.map(({date,titles})=>`<article class="current-week-day ${date===todayISO()?"today":""}">
+  <div class="current-week-day-head">${fmt(date)}</div>
+  <div class="current-week-day-body">${titles.length?`<ul class="current-week-menu-list">${titles.map(title=>`<li>${esc(title)}</li>`).join("")}</ul>`:`<div class="current-week-empty">メニューなし</div>`}</div>
+ </article>`).join("");
+}
+function weeklyPrintHTML(baseDate){
+ const week=weekSummaryData(baseDate);
+ return `<div class="weekly-print-grid">${week.map(({date,titles})=>`<section class="weekly-print-day">
+  <div class="weekly-print-head">${fmt(date)}</div>
+  ${titles.length?`<ul class="weekly-print-list">${titles.map(title=>`<li>${esc(title)}</li>`).join("")}</ul>`:`<div class="weekly-print-empty">メニューなし</div>`}
+ </section>`).join("")}</div>`;
+}
 window.showTodayDate=date=>{el("todayDate").value=date;renderToday();scrollTo({top:0,behavior:"smooth"})};
 function renderToday(){
  const selected=el("todayDate").value;
@@ -1558,6 +1609,7 @@ function renderToday(){
  }
  const list=Object.keys(days).filter(d=>dayHasContent(days[d])).sort();
  el("dayList").innerHTML=list.length?list.map(d=>compactDayCard(d,days[d])).join(""):`<tr><td colspan="7"><div class="empty">入力済みの日はありません</div></td></tr>`;
+ renderCurrentWeek();
  applyRoleUI();
 }
 window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
