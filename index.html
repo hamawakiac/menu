@@ -943,7 +943,7 @@ header,
 
 <header><div class="head">
  <div class="headtop"><div><h1>浜脇AC│トレーニングメニュー</h1><div style="height:4px;width:190px;margin-top:6px;border-radius:999px;background:linear-gradient(90deg,#1d8fbf,#62a34a,#f1dc22,#111)"></div></div>
-  <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
+  <div class="status"><span id="dot" class="dot"></span><span id="dbstatus">確認中</span><span id="userstatus"></span><span id="savestatus"></span><button id="logout" class="btn secondary small" style="display:none">ログアウト</button></div>
  </div>
  <nav>
   <button class="active" data-view="today">📓 メニュー一覧</button>
@@ -1107,8 +1107,8 @@ function currentUpdaterName(){
 function refreshUserText(){
  const roleLabel=currentRole==="admin"?"管理者":currentRole==="editor"?"編集者":currentRole==="viewer"?"閲覧専用":"";
  const label=currentUpdaterName();
- const statusText=el("savestatus");
- if(statusText && user)statusText.textContent=`${label}${roleLabel?`（${roleLabel}）`:""}`;
+ const statusText=el("userstatus");
+ if(statusText)statusText.textContent=user?`${label}${roleLabel?`（${roleLabel}）`:""}`:"";
 }
 function cls(cat){return({"全体メニュー":"cat-overall","全体メニュー（前半）":"cat-overall","全体練習メニュー（本練習）":"cat-overall","全体メニュー（後半）":"cat-overall","筋トレメニュー":"cat-strength","短距離メニュー":"cat-sprint","ハードルメニュー":"cat-hurdle","跳躍メニュー":"cat-jump","投擲メニュー":"cat-throw","長距離メニュー":"cat-distance","ドリルメニュー":"cat-drill"})[cat]||""}
 const SPECIALTY_SECTION_IDS=["sprint","hurdle","jump","throw","distance","middleStrength"];
@@ -1691,7 +1691,7 @@ async function init(){
     try{await syncStarterMenus()}catch(e){console.error("starter menu sync error",e)}
     setStatus("リアルタイム接続","online");
    }else{
-    currentRole=null;currentDisplayName="";memberNameMap={};applyRoleUI();el("login").classList.remove("hidden");el("logout").style.display="none";setStatus("ログイン待ち","");
+    currentRole=null;currentDisplayName="";memberNameMap={};applyRoleUI();refreshUserText();el("login").classList.remove("hidden");el("logout").style.display="none";setStatus("ログイン待ち","");
    }
   })
  }catch(e){console.error(e);setStatus("接続エラー","offline")}

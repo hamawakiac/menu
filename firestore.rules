@@ -5,12 +5,40 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function memberPath(teamId) {
+      return /databases/$(database)/documents/teams/$(teamId)/members/$(request.auth.uid);
+    }
+
+    function role(teamId) {
+      return get(memberPath(teamId)).data.role;
+    }
+
+    function isAdmin(teamId) {
+      return signedIn() && role(teamId) == "admin";
+    }
+
+    function canEdit(teamId) {
+      return signedIn() && (role(teamId) == "admin" || role(teamId) == "editor");
+    }
+
+    function canRead(teamId) {
+      return signedIn() && (role(teamId) == "admin" || role(teamId) == "editor" || role(teamId) == "viewer");
+    }
+
+    match /teams/{teamId}/members/{userId} {
+      allow get: if signedIn() && (request.auth.uid == userId || isAdmin(teamId));
+      allow list: if isAdmin(teamId);
+      allow create, update, delete: if isAdmin(teamId);
+    }
+
     match /teams/{teamId}/menus/{menuId} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canRead(teamId);
+      allow create, update, delete: if canEdit(teamId);
     }
 
     match /teams/{teamId}/days/{dateId} {
-      allow read, create, update, delete: if signedIn();
+      allow read: if canRead(teamId);
+      allow create, update, delete: if canEdit(teamId);
     }
 
     match /{document=**} {
