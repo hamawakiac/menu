@@ -1024,10 +1024,12 @@ header,
 </style>
 
 <style id="today-meta-inline-fix">
-.today-meta-line{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-start;margin:6px 0 4px}
-.today-meta-item{display:flex;align-items:flex-start;gap:6px;min-width:220px;max-width:100%;font-size:17px;line-height:1.5;color:#1f2937}
-.today-meta-item b{white-space:nowrap;color:#111}
-@media(max-width:780px){.today-meta-line{display:block}.today-meta-item{margin:4px 0;font-size:16px}}
+.today-meta-line{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:12px 0 8px}
+.today-meta-item{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:8px;min-width:0;padding:11px 14px;border:1px solid #cfe3dc;border-radius:12px;background:#f7fbf9;font-size:16px;line-height:1.5;color:#1f2937}
+.today-meta-item b{white-space:nowrap;color:#0f513f}
+.today-meta-item span{min-width:0;overflow-wrap:anywhere}
+.today-meta-empty{color:#98a2b3}
+@media(max-width:780px){.today-meta-line{grid-template-columns:1fr}.today-meta-item{font-size:15px}}
 </style>
 
 <style id="split-print-buttons-style">
@@ -1035,6 +1037,55 @@ header,
 #currentWeekPanel #printWeek{background:#fff!important;color:#1778a8!important;border:1px solid rgba(255,255,255,.55)!important;box-shadow:none!important}
 #currentWeekPanel #printWeek:hover{filter:brightness(.98)}
 @media(max-width:780px){.current-week-title-actions{width:100%;justify-content:space-between}}
+</style>
+
+<style id="weekly-print-two-column-menu-style">
+@media print{
+ #printRoot .print-week-page .weekly-print-day{
+  display:block!important;
+  width:100%!important;
+  border:.3mm solid #777!important;
+  border-radius:1.5mm!important;
+  overflow:hidden!important;
+ }
+ #printRoot .print-week-page .weekly-print-head{
+  display:block!important;
+  padding:1.3mm 2mm!important;
+  border-right:0!important;
+  border-bottom:.3mm solid #aaa!important;
+  text-align:left!important;
+  font-size:8.8pt!important;
+  background:#eef8f4!important;
+ }
+ #printRoot .weekly-print-menu-grid{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:0!important;
+  width:100%!important;
+ }
+ #printRoot .weekly-print-menu-item{
+  display:grid!important;
+  grid-template-columns:29mm minmax(0,1fr)!important;
+  align-items:start!important;
+  gap:1.2mm!important;
+  padding:1mm 1.4mm!important;
+  border-bottom:.2mm solid #ccc!important;
+  min-width:0!important;
+  font-size:7.8pt!important;
+  line-height:1.22!important;
+ }
+ #printRoot .weekly-print-menu-item:nth-child(odd){border-right:.2mm solid #ccc!important}
+ #printRoot .weekly-print-menu-item strong{
+  color:#245548!important;
+  font-weight:900!important;
+  min-width:0!important;
+ }
+ #printRoot .weekly-print-menu-item span{
+  min-width:0!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+ }
+}
 </style>
 </head>
 <body>
@@ -1515,10 +1566,10 @@ function dayHTML(date,day){
 
  const totalMenus=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
 
- const metaLine=(day.event||day.theme)?`<div class="today-meta-line">
-   ${day.event?`<div class="today-meta-item"><b>行事：</b><span>${esc(day.event)}</span></div>`:""}
-   ${day.theme?`<div class="today-meta-item"><b>テーマ：</b><span>${esc(day.theme)}</span></div>`:""}
-  </div>`:"";
+ const metaLine=`<div class="today-meta-line">
+   <div class="today-meta-item"><b>行事：</b><span class="${day.event?"":"today-meta-empty"}">${day.event?esc(day.event):"未設定"}</span></div>
+   <div class="today-meta-item"><b>テーマ：</b><span class="${day.theme?"":"today-meta-empty"}">${day.theme?esc(day.theme):"未設定"}</span></div>
+  </div>`;
 
  return `${metaLine}
   <div class="today-summary">
@@ -1709,7 +1760,7 @@ function weeklyPrintHTML(baseDate){
  const week=weekSummaryData(baseDate);
  return `<div class="weekly-print-grid">${week.map(({date,entries})=>`<section class="weekly-print-day">
   <div class="weekly-print-head">${fmt(date)}</div>
-  ${entries.length?`<table class="weekly-print-table"><tbody>${entries.map(entry=>`<tr><th>${esc(entry.eventName)}</th><td>${esc(entry.menuName)}</td></tr>`).join("")}</tbody></table>`:`<div class="weekly-print-empty">メニューなし</div>`}
+  ${entries.length?`<div class="weekly-print-menu-grid">${entries.map(entry=>`<div class="weekly-print-menu-item"><strong>${esc(entry.eventName)}</strong><span>${esc(entry.menuName)}</span></div>`).join("")}</div>`:`<div class="weekly-print-empty">メニューなし</div>`}
  </section>`).join("")}</div>`;
 }
 window.showTodayDate=date=>{el("todayDate").value=date;renderToday();scrollTo({top:0,behavior:"smooth"})};
