@@ -1022,6 +1022,20 @@ header,
 #printRoot .print-overall-page .today-major,
 #printRoot .print-specialty-page .today-major{width:100%!important;margin:0!important}
 </style>
+
+<style id="today-meta-inline-fix">
+.today-meta-line{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:flex-start;margin:6px 0 4px}
+.today-meta-item{display:flex;align-items:flex-start;gap:6px;min-width:220px;max-width:100%;font-size:17px;line-height:1.5;color:#1f2937}
+.today-meta-item b{white-space:nowrap;color:#111}
+@media(max-width:780px){.today-meta-line{display:block}.today-meta-item{margin:4px 0;font-size:16px}}
+</style>
+
+<style id="split-print-buttons-style">
+.current-week-title-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+#currentWeekPanel #printWeek{background:#fff!important;color:#1778a8!important;border:1px solid rgba(255,255,255,.55)!important;box-shadow:none!important}
+#currentWeekPanel #printWeek:hover{filter:brightness(.98)}
+@media(max-width:780px){.current-week-title-actions{width:100%;justify-content:space-between}}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1051,11 +1065,11 @@ header,
 <main>
 <section id="v-today" class="view active">
  <div class="panel">
-  <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
+  <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">選択日を印刷</button></div></div>
   <div id="todayContent"></div>
  </div>
  <div class="panel" id="currentWeekPanel">
-  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><p id="currentWeekRange"></p></div>
+  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><div class="current-week-title-actions"><p id="currentWeekRange"></p><button id="printWeek" class="btn primary no-print">週間を印刷</button></div></div>
   <div id="currentWeekContent" class="current-week-grid"></div>
  </div>
 </section>
@@ -1501,9 +1515,12 @@ function dayHTML(date,day){
 
  const totalMenus=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
 
- return `<h2>${fmt(date)}</h2>
-  ${day.event?`<p><b>行事：</b>${esc(day.event)}</p>`:""}
-  ${day.theme?`<p><b>テーマ：</b>${esc(day.theme)}</p>`:""}
+ const metaLine=(day.event||day.theme)?`<div class="today-meta-line">
+   ${day.event?`<div class="today-meta-item"><b>行事：</b><span>${esc(day.event)}</span></div>`:""}
+   ${day.theme?`<div class="today-meta-item"><b>テーマ：</b><span>${esc(day.theme)}</span></div>`:""}
+  </div>`:"";
+
+ return `${metaLine}
   <div class="today-summary">
    <span>登録メニュー ${totalMenus}件</span>
    ${day.updatedBy?`<span>更新者 ${esc(nameForDisplay(day.updatedBy))}</span>`:""}
@@ -1543,56 +1560,12 @@ function fitPrintPageToA4(page){
  inner.style.setProperty("width",(100/scale)+"%","important");
  page.dataset.printScale=String(scale);
 }
-function prepareOnePagePrint(){
+function mountPrintPages(pages){
  cleanupOnePagePrint();
- const selected=el("todayDate")?.value;
- const day=selected?days[selected]:null;
- if(!selected||!dayHasContent(day))return false;
- const content=el("todayContent");
- if(!content)return false;
-
+ if(!pages||!pages.length)return false;
  const root=document.createElement("div");
  root.id="printRoot";
-
- // 選択日の共通情報と、全体・専門の各欄を別々のA4ページへ分割する。
- const parsed=document.createElement("div");
- parsed.innerHTML=content.innerHTML;
- const heading=parsed.querySelector(":scope > h2")?.outerHTML||`<h2>${fmt(selected)}</h2>`;
- const topInfo=Array.from(parsed.children)
-  .filter(node=>node.matches?.("p, .today-summary"))
-  .map(node=>node.outerHTML).join("");
- const overallBlock=parsed.querySelector(".today-major.overall")?.outerHTML||'<div class="today-empty-group">全体練習は設定されていません</div>';
- const specialtyBlock=parsed.querySelector(".today-major.events")?.outerHTML||'<div class="today-empty-group">専門種目練習は設定されていません</div>';
- const notes=parsed.querySelector(".notice")?.outerHTML||"";
- const lastUpdated=Array.from(parsed.querySelectorAll(":scope > p.muted")).map(node=>node.outerHTML).join("");
-
- function selectedDayPage(label,block,extraClass){
-  const page=document.createElement("section");
-  page.className=`print-page print-today-page ${extraClass}`;
-  page.innerHTML=`<div class="print-page-inner today-print-content">
-   <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-   <div class="print-page-label">${label}</div>
-   ${heading}${topInfo}<div class="today-board">${block}</div>${notes}${lastUpdated}
-  </div>`;
-  return page;
- }
-
- const overallPage=selectedDayPage("選択日の全体練習",overallBlock,"print-overall-page");
- const specialtyPage=selectedDayPage("選択日の専門種目練習",specialtyBlock,"print-specialty-page");
-
- const week=weekSummaryData(selected);
- const weekPage=document.createElement("section");
- weekPage.className="print-page print-week-page";
- weekPage.innerHTML=`<div class="print-page-inner">
-  <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-  <div class="print-page-label">今週の練習メニュー（月曜日～日曜日）</div>
-  <p style="text-align:center;font-weight:800;margin:0 0 3mm">${fmt(week[0].date)} ～ ${fmt(week[6].date)}</p>
-  ${weeklyPrintHTML(selected)}
- </div>`;
-
- root.appendChild(overallPage);
- root.appendChild(specialtyPage);
- root.appendChild(weekPage);
+ pages.forEach(page=>root.appendChild(page));
  root.style.position="absolute";
  root.style.left="-10000px";
  root.style.top="0";
@@ -1605,6 +1578,74 @@ function prepareOnePagePrint(){
  root.style.left="auto";
  return true;
 }
+
+function buildSelectedDayPages(){
+ const selected=el("todayDate")?.value;
+ const day=selected?days[selected]:null;
+ if(!selected||!dayHasContent(day))return null;
+ const content=el("todayContent");
+ if(!content)return null;
+
+ const parsed=document.createElement("div");
+ parsed.innerHTML=content.innerHTML;
+ const topInfo=Array.from(parsed.children)
+  .filter(node=>node.matches?.(".today-meta-line, .today-summary"))
+  .map(node=>node.outerHTML).join("");
+ const overallBlock=parsed.querySelector(".today-major.overall")?.outerHTML||'<div class="today-empty-group">全体練習は設定されていません</div>';
+ const specialtyBlock=parsed.querySelector(".today-major.events")?.outerHTML||'<div class="today-empty-group">専門種目練習は設定されていません</div>';
+ const notes=parsed.querySelector(".notice")?.outerHTML||"";
+ const lastUpdated=Array.from(parsed.querySelectorAll(":scope > p.muted")).map(node=>node.outerHTML).join("");
+
+ function selectedDayPage(label,block,extraClass){
+  const page=document.createElement("section");
+  page.className=`print-page print-today-page ${extraClass}`;
+  page.innerHTML=`<div class="print-page-inner today-print-content">
+   <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+   <div class="print-page-label">${label}</div>
+   <p style="text-align:center;font-weight:900;font-size:15pt;margin:0 0 2mm">${fmt(selected)}</p>
+   ${topInfo}<div class="today-board">${block}</div>${notes}${lastUpdated}
+  </div>`;
+  return page;
+ }
+
+ return [
+  selectedDayPage("選択日の全体練習",overallBlock,"print-overall-page"),
+  selectedDayPage("選択日の専門種目練習",specialtyBlock,"print-specialty-page")
+ ];
+}
+
+function buildWeekPrintPages(){
+ const selected=el("todayDate")?.value||todayISO();
+ const week=weekSummaryData(selected);
+ const weekPage=document.createElement("section");
+ weekPage.className="print-page print-week-page";
+ weekPage.innerHTML=`<div class="print-page-inner">
+  <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+  <div class="print-page-label">今週の練習メニュー（月曜日～日曜日）</div>
+  <p style="text-align:center;font-weight:800;margin:0 0 3mm">${fmt(week[0].date)} ～ ${fmt(week[6].date)}</p>
+  ${weeklyPrintHTML(selected)}
+ </div>`;
+ return [weekPage];
+}
+
+function prepareSelectedDayPrint(){
+ const pages=buildSelectedDayPages();
+ return mountPrintPages(pages);
+}
+
+function prepareWeekPrint(){
+ const pages=buildWeekPrintPages();
+ return mountPrintPages(pages);
+}
+
+function performPreparedPrint(builder){
+ if(!builder||!builder()){
+  alert("印刷データを作成できませんでした。画面を再読み込みして、もう一度お試しください。");
+  return;
+ }
+ requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),120)));
+}
+
 function cleanupOnePagePrint(){
  const root=document.getElementById("printRoot");
  if(root)root.remove();
@@ -1689,22 +1730,22 @@ function renderToday(){
  applyRoleUI();
 }
 window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
-el("editDay").onclick=()=>openDay(el("todayDate").value);el("todayDate").onchange=renderToday;el("printDay").onclick=()=>{
+el("editDay").onclick=()=>openDay(el("todayDate").value);
+el("todayDate").onchange=renderToday;
+el("printDay").onclick=()=>{
  const selected=el("todayDate").value;
  if(!dayHasContent(days[selected])){
   alert(`${fmt(selected)}は未作成のため印刷できません。入力済みの日を「表示」してから印刷してください。`);
   return;
  }
- if(!prepareOnePagePrint()){
-  alert("印刷データを作成できませんでした。画面を再読み込みして、もう一度お試しください。");
-  return;
- }
- requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),120)));
+ performPreparedPrint(prepareSelectedDayPrint);
 };
+const printWeekBtn=el("printWeek");
+if(printWeekBtn)printWeekBtn.onclick=()=>performPreparedPrint(prepareWeekPrint);
 window.addEventListener("beforeprint",()=>{
  if(!document.getElementById("printRoot")){
   const selected=el("todayDate")?.value;
-  if(selected&&dayHasContent(days[selected]))prepareOnePagePrint();
+  if(selected&&dayHasContent(days[selected]))prepareSelectedDayPrint();
  }
 });
 window.addEventListener("afterprint",cleanupOnePagePrint);
