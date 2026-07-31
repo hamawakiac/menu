@@ -946,7 +946,18 @@ header,
 </style>
 
 <style id="current-week-summary-style">
-.current-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:14px}
+/* 今週の練習メニュー：全体練習・専門種目練習と共通の帯デザイン */
+#currentWeekPanel{padding:0;overflow:hidden}
+#currentWeekPanel .current-week-title-band{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:14px 17px;margin:0;
+ background:linear-gradient(135deg,#1778a8,#3f9a75 58%,#d5c91e);
+ color:#fff;box-shadow:none;
+}
+#currentWeekPanel .current-week-title-band h2{margin:0;color:#fff;font-size:19px;font-weight:900;letter-spacing:.04em}
+#currentWeekPanel .current-week-title-band #currentWeekRange{margin:0!important;color:#fff;opacity:.95;font-size:12px;font-weight:800}
+#currentWeekContent{padding:13px}
+.current-week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:0}
 .current-week-day{border:1px solid var(--line);border-radius:13px;background:#fff;overflow:hidden;min-height:150px}
 .current-week-day-head{padding:9px 8px;text-align:center;font-weight:900;background:#eef8f4;border-bottom:1px solid var(--line);font-size:12px}
 .current-week-day.today .current-week-day-head{background:#f8e94e;color:#111}
@@ -1000,7 +1011,7 @@ header,
   <div id="todayContent"></div>
  </div>
  <div class="panel" id="currentWeekPanel">
-  <div class="toolbar"><div><h2 style="margin:0">今週の練習メニュー</h2><p id="currentWeekRange" class="muted" style="margin:4px 0 0"></p></div></div>
+  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><p id="currentWeekRange"></p></div>
   <div id="currentWeekContent" class="current-week-grid"></div>
  </div>
 </section>
