@@ -1087,6 +1087,14 @@ header,
  }
 }
 </style>
+
+<style id="week-print-title-date-fix">
+@media print{
+ #printRoot .week-print-label{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:4mm!important;text-align:left!important}
+ #printRoot .week-print-label span{font-size:13pt!important;font-weight:900!important}
+ #printRoot .week-print-label small{font-size:10.5pt!important;font-weight:800!important;white-space:nowrap!important;color:#fff!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1672,8 +1680,7 @@ function buildWeekPrintPages(){
  weekPage.className="print-page print-week-page";
  weekPage.innerHTML=`<div class="print-page-inner">
   <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-  <div class="print-page-label">今週の練習メニュー（月曜日～日曜日）</div>
-  <p style="text-align:center;font-weight:800;margin:0 0 3mm">${fmt(week[0].date)} ～ ${fmt(week[6].date)}</p>
+  <div class="print-page-label week-print-label"><span>今週の練習メニュー</span><small>${fmt(week[0].date)} ～ ${fmt(week[6].date)}</small></div>
   ${weeklyPrintHTML(selected)}
  </div>`;
  return [weekPage];
