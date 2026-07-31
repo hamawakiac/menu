@@ -993,6 +993,35 @@ header,
  #printRoot .print-week-page .weekly-print-head{border-right:.3mm solid #aaa!important;border-bottom:0!important}
 }
 </style>
+
+<style id="today-layout-and-print-fit-fix">
+.today-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.today-topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 360px}
+.today-selected-date{font-size:30px;font-weight:900;line-height:1.15;color:#111;white-space:nowrap}
+#todayDate{width:220px!important;max-width:100%!important;min-width:180px!important;display:block!important}
+@media(max-width:780px){
+  .today-topbar{align-items:stretch}
+  .today-topbar-left{width:100%;flex-wrap:wrap}
+  .today-selected-date{font-size:22px;white-space:normal}
+  #todayDate{width:100%!important;min-width:0!important}
+}
+
+#printRoot, #printRoot *{box-sizing:border-box!important}
+#printRoot .print-page{width:190mm!important;max-width:190mm!important;min-width:190mm!important;overflow:hidden!important;margin:0 auto!important;padding:0!important}
+#printRoot .print-page-inner{width:100%!important;max-width:100%!important;overflow:hidden!important;padding:6mm 6mm 5mm!important}
+#printRoot .print-sheet-title{max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#printRoot .print-page-label{display:block!important;width:100%!important;max-width:100%!important;margin:0 0 3mm!important;padding:2.8mm 4mm!important;border-radius:3mm!important;background:linear-gradient(135deg,#1778a8,#3f9a75 58%,#d5c91e)!important;color:#fff!important;font-size:13pt!important;font-weight:900!important;text-align:center!important;letter-spacing:.03em!important}
+#printRoot h2,#printRoot p,#printRoot div,#printRoot td,#printRoot th,#printRoot li{max-width:100%!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+#printRoot .today-board,#printRoot .today-major,#printRoot .today-major-body,#printRoot .today-menu-row,#printRoot .today-menu-row>*{min-width:0!important;max-width:100%!important}
+#printRoot .today-major,#printRoot .weekly-print-day{overflow:hidden!important}
+#printRoot .weekly-print-head{display:flex!important;align-items:center!important;justify-content:center!important;background:#eef8f4!important;font-weight:900!important}
+#printRoot .print-week-page .weekly-print-grid{display:grid!important;grid-template-columns:1fr!important;gap:1.5mm!important}
+#printRoot .print-week-page .weekly-print-day{display:grid!important;grid-template-columns:32mm minmax(0,1fr)!important}
+#printRoot .print-overall-page .today-board,
+#printRoot .print-specialty-page .today-board{display:block!important;margin-top:2mm!important}
+#printRoot .print-overall-page .today-major,
+#printRoot .print-specialty-page .today-major{width:100%!important;margin:0!important}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1022,7 +1051,7 @@ header,
 <main>
 <section id="v-today" class="view active">
  <div class="panel">
-  <div class="toolbar no-print"><input id="todayDate" type="date" style="width:auto"><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
+  <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary">印刷</button></div></div>
   <div id="todayContent"></div>
  </div>
  <div class="panel" id="currentWeekPanel">
@@ -1645,6 +1674,8 @@ function weeklyPrintHTML(baseDate){
 window.showTodayDate=date=>{el("todayDate").value=date;renderToday();scrollTo({top:0,behavior:"smooth"})};
 function renderToday(){
  const selected=el("todayDate").value;
+ const selectedLabel=el("todaySelectedLabel");
+ if(selectedLabel)selectedLabel.textContent=fmt(selected);
  el("todayContent").innerHTML=dayHTML(selected,days[selected]);
  const printable=dayHasContent(days[selected]);
  const printBtn=el("printDay");
