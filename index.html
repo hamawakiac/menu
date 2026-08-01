@@ -2347,6 +2347,15 @@ async function loadCurrentRole(){
   }
   applyRoleUI();
   refreshUserText();
+
+  // editor・adminはログイン直後に、練習メニューページの当日を必ず表示する。
+  if(currentRole==="admin" || currentRole==="editor"){
+   const today=todayISO();
+   if(el("todayDate"))el("todayDate").value=today;
+   nav("today",{skipConfirm:true});
+   renderToday();
+  }
+
   renderAll();
  }catch(error){
   console.error("role load error",error);
