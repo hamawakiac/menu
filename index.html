@@ -1852,6 +1852,48 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
  }
 }
 </style>
+
+<style id="final-print-and-copy-button-color-fix">
+/* 表示確認済み最終指定：高詳細度セレクタで既存の画面別!importantを上書き */
+#v-today #printDay,
+#currentWeekPanel #printWeek,
+#v-weekly #printInputWeek,
+#v-monthly #printInputMonth{
+  background-image:none!important;
+  background-color:#ffffff!important;
+  color:#1660a8!important;
+  border:2px solid #8fc0ff!important;
+  box-shadow:0 6px 16px rgba(59,130,246,.12)!important;
+}
+#v-today #printDay:hover,
+#currentWeekPanel #printWeek:hover,
+#v-weekly #printInputWeek:hover,
+#v-monthly #printInputMonth:hover{
+  background-image:none!important;
+  background-color:#f7fbff!important;
+  color:#0f4f8b!important;
+  border:2px solid #6aa8f7!important;
+  box-shadow:0 10px 20px rgba(59,130,246,.18)!important;
+  transform:translateY(-1px)!important;
+}
+#v-daily #copyPrev,
+#v-weekly #copyPrevWeek{
+  background-image:none!important;
+  background-color:#d6ad52!important;
+  color:#ffffff!important;
+  border:2px solid #b98b2f!important;
+  box-shadow:0 6px 16px rgba(145,105,28,.18)!important;
+}
+#v-daily #copyPrev:hover,
+#v-weekly #copyPrevWeek:hover{
+  background-image:none!important;
+  background-color:#e0bd70!important;
+  color:#ffffff!important;
+  border:2px solid #a97c25!important;
+  box-shadow:0 10px 20px rgba(145,105,28,.24)!important;
+  transform:translateY(-1px)!important;
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1885,7 +1927,7 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
   <div id="todayContent"></div>
  </div>
  <div class="panel" id="currentWeekPanel">
-  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><div class="current-week-title-actions"><p id="currentWeekRange"></p><button id="printWeek" type="button" class="btn primary no-print viewer-hide unified-action-btn">週間を印刷</button></div></div>
+  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><div class="current-week-title-actions"><p id="currentWeekRange"></p><button id="printWeek" type="button" class="btn primary no-print viewer-hide unified-action-btn">週間印刷</button></div></div>
   <div id="currentWeekContent" class="current-week-grid"></div>
  </div>
 </section>
