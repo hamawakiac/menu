@@ -1474,25 +1474,6 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
  }
 }
 </style>
-
-<style id="specialty-print-four-field-layout">
-@media print{
- #printRoot .print-specialty-page .specialty-print-major{border:1px solid #777!important;border-radius:2mm!important;overflow:hidden!important}
- #printRoot .print-specialty-page .specialty-print-list{display:grid!important;grid-template-columns:1fr!important;gap:1.8mm!important;padding:2mm!important}
- #printRoot .print-specialty-page .specialty-print-card{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,2.15fr)!important;border:.35mm solid #9aa9a4!important;border-radius:1.6mm!important;overflow:hidden!important;background:#fff!important;break-inside:avoid!important;page-break-inside:avoid!important}
- #printRoot .print-specialty-page .specialty-print-cell{display:grid!important;grid-template-columns:20mm minmax(0,1fr)!important;align-items:start!important;gap:2mm!important;padding:2.1mm 2.5mm!important;min-width:0!important;font-size:11.8pt!important;line-height:1.42!important;border-bottom:.25mm solid #d7e1dd!important}
- #printRoot .print-specialty-page .specialty-print-cell:nth-child(odd){border-right:.25mm solid #d7e1dd!important}
- #printRoot .print-specialty-page .specialty-print-cell:nth-child(3),
- #printRoot .print-specialty-page .specialty-print-cell:nth-child(4){border-bottom:0!important}
- #printRoot .print-specialty-page .specialty-print-cell b{font-size:11.2pt!important;line-height:1.35!important;color:#126f5c!important;white-space:nowrap!important}
- #printRoot .print-specialty-page .specialty-print-cell span{font-size:12.2pt!important;line-height:1.42!important;font-weight:700!important;color:#111!important;overflow-wrap:anywhere!important}
- #printRoot .print-specialty-page .specialty-print-event span{font-size:13pt!important;font-weight:900!important}
- #printRoot .print-specialty-page .specialty-print-description span{font-weight:600!important}
- #printRoot .print-specialty-page .specialty-print-added span{font-size:11.2pt!important}
- #printRoot .print-specialty-page .today-major-title{font-size:13pt!important;padding:2.6mm 3.2mm!important}
- #printRoot .print-specialty-page .today-major-count{font-size:9.5pt!important}
-}
-</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1522,11 +1503,11 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
 <main>
 <section id="v-today" class="view active">
  <div class="panel">
-  <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" class="btn primary viewer-hide">選択日を印刷</button></div></div>
+  <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" type="button" class="btn primary viewer-hide">選択日を印刷</button></div></div>
   <div id="todayContent"></div>
  </div>
  <div class="panel" id="currentWeekPanel">
-  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><div class="current-week-title-actions"><p id="currentWeekRange"></p><button id="printWeek" class="btn primary no-print viewer-hide">週間を印刷</button></div></div>
+  <div class="current-week-title-band"><h2>今週の練習メニュー</h2><div class="current-week-title-actions"><p id="currentWeekRange"></p><button id="printWeek" type="button" class="btn primary no-print viewer-hide">週間を印刷</button></div></div>
   <div id="currentWeekContent" class="current-week-grid"></div>
  </div>
 </section>
@@ -1557,7 +1538,7 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
     </label>
     <div class="week-control-actions">
      <button id="saveWeek" class="btn primary">1週間を保存</button>
-     <button id="printInputWeek" class="btn secondary print-purpose-btn">🖨 週間メニューを印刷</button>
+     <button id="printInputWeek" type="button" class="btn secondary print-purpose-btn">🖨 週間メニューを印刷</button>
     </div>
    </div>
   </div>
@@ -1581,7 +1562,7 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
     </label>
     <div class="month-control-actions">
      <button id="saveMonth" class="btn primary">1か月を保存</button>
-     <button id="printInputMonth" class="btn secondary print-purpose-btn">印刷</button>
+     <button id="printInputMonth" type="button" class="btn secondary print-purpose-btn">印刷</button>
     </div>
    </div>
   </div>
@@ -2114,31 +2095,6 @@ function buildSelectedDayPages(){
   .map(node=>node.outerHTML).join("");
  const overallBlock=parsed.querySelector(".today-major.overall")?.outerHTML||'<div class="today-empty-group">全体練習は設定されていません</div>';
  const specialtyBlock=parsed.querySelector(".today-major.events")?.outerHTML||'<div class="today-empty-group">専門種目練習は設定されていません</div>';
- const specialtySectionIds=["sprint","hurdle","jump","throw","distance","middleStrength"];
- const specialtyCards=specialtySectionIds.flatMap(sectionId=>{
-  const section=SECTIONS.find(item=>item.id===sectionId);
-  const ids=day.sections?.[sectionId]||[];
-  const metas=day.sectionItemMeta?.[sectionId]||[];
-  return ids.map((menuId,index)=>{
-   const menu=menus.find(item=>item.id===menuId);
-   if(!menu)return "";
-   const description=[menu.detail,menu.sets,menu.intensity,menu.rest,menu.duration].filter(Boolean).join("／")||"記載なし";
-   const caution=menu.caution||"記載なし";
-   const meta=metas[index]||{};
-   const addedBy=nameForDisplay(meta.addedBy||meta.updatedBy||"")||"記録なし";
-   const addedAt=meta.addedAtText?` ／ ${formatDateTime(meta.addedAtText)}`:"";
-   return `<article class="specialty-print-card">
-    <div class="specialty-print-cell specialty-print-event"><b>種目名</b><span>${esc(section?.label||"専門種目")}｜${esc(menu.name)}</span></div>
-    <div class="specialty-print-cell specialty-print-description"><b>説明</b><span>${esc(description)}</span></div>
-    <div class="specialty-print-cell specialty-print-caution"><b>注意点</b><span>${esc(caution)}</span></div>
-    <div class="specialty-print-cell specialty-print-added"><b>追加者</b><span>${esc(addedBy+addedAt)}</span></div>
-   </article>`;
-  });
- }).filter(Boolean).join("");
- const specialtyPrintBlock=`<div class="today-major events specialty-print-major">
-  <div class="today-major-title"><span>専門種目練習</span><span class="today-major-count">${specialtySectionIds.reduce((n,id)=>n+(day.sections?.[id]?.length||0),0)}件</span></div>
-  <div class="specialty-print-list">${specialtyCards||'<div class="today-empty-group">専門種目練習は設定されていません</div>'}</div>
- </div>`;
  const notes=parsed.querySelector(".notice")?.outerHTML||"";
  const lastUpdated=Array.from(parsed.querySelectorAll(":scope > p.muted")).map(node=>node.outerHTML).join("");
 
@@ -2157,7 +2113,7 @@ function buildSelectedDayPages(){
 
  return [
   selectedDayPage(overallBlock,"print-overall-page"),
-  selectedDayPage(specialtyPrintBlock,"print-specialty-page")
+  selectedDayPage(specialtyBlock,"print-specialty-page")
  ];
 }
 
@@ -2185,11 +2141,20 @@ function prepareWeekPrint(baseDate){
 }
 
 function performPreparedPrint(builder){
- if(!builder||!builder()){
-  alert("印刷データを作成できませんでした。画面を再読み込みして、もう一度お試しください。");
-  return;
+ try{
+  cleanupOnePagePrint();
+  if(typeof builder!=="function"||!builder()){
+   alert("印刷データを作成できませんでした。入力内容と選択日を確認してください。");
+   return;
+  }
+  // ユーザーがボタンを押した処理内で直接呼び出し、ブラウザの印刷制限を避ける。
+  window.print();
+ }catch(error){
+  console.error("print error",error);
+  cleanupOnePagePrint();
+  alert(`印刷画面を開けませんでした。
+${error?.message||"不明なエラー"}`);
  }
- requestAnimationFrame(()=>setTimeout(()=>window.print(),20));
 }
 
 function cleanupOnePagePrint(){
@@ -2281,10 +2246,11 @@ function renderToday(){
 window.openDay=d=>{if(!canEditApp())return;if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)}
 el("editDay").onclick=()=>openDay(el("todayDate").value);
 el("todayDate").onchange=renderToday;
-el("printDay").onclick=()=>{
- const selected=el("todayDate").value;
- if(!dayHasContent(days[selected])){
-  alert(`${fmt(selected)}は未作成のため印刷できません。入力済みの日を「表示」してから印刷してください。`);
+el("printDay").onclick=event=>{
+ event?.preventDefault();
+ const selected=el("todayDate")?.value;
+ if(!selected||!dayHasContent(days[selected])){
+  alert(`${selected?fmt(selected):"選択日"}は未作成のため印刷できません。入力済みの日を表示してから印刷してください。`);
   return;
  }
  performPreparedPrint(prepareSelectedDayPrint);
