@@ -1976,6 +1976,111 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
  body.viewer-mode #v-monthly .viewer-month-day .month-day-count{grid-column:auto!important;justify-self:end!important}
 }
 </style>
+
+<style id="monthly-editor-vertical-two-row-layout">
+/* editor/admin 月間予定：日付を縦に並べ、1日を2行で表示 */
+#v-monthly .month-grid:not(.viewer-month-grid){
+ display:flex!important;
+ flex-direction:column!important;
+ gap:8px!important;
+ grid-template-columns:none!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-weekday,
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day.other{display:none!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-list-row{
+ width:100%!important;
+ min-height:0!important;
+ padding:10px 12px!important;
+ gap:8px!important;
+ display:flex!important;
+ flex-direction:column!important;
+ overflow:visible!important;
+}
+#v-monthly .month-day-row{display:grid!important;align-items:end!important;gap:10px!important;width:100%!important}
+#v-monthly .month-day-row-first{grid-template-columns:64px 54px minmax(190px,1fr) minmax(190px,1fr)!important}
+#v-monthly .month-day-row-second{grid-template-columns:minmax(300px,1fr) 130px 190px!important}
+#v-monthly .month-date-cell,#v-monthly .month-weekday-cell{
+ height:42px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ border:1px solid #c9ddd7!important;border-radius:9px!important;background:#f8fcfb!important;
+}
+#v-monthly .month-day-number{font-size:16px!important;font-weight:900!important}
+#v-monthly .month-weekday-badge{font-size:14px!important;font-weight:900!important}
+#v-monthly .month-field-cell{display:flex!important;flex-direction:column!important;gap:4px!important;min-width:0!important}
+#v-monthly .month-field-cell>span,#v-monthly .month-menu-count-cell>span{font-size:11px!important;font-weight:900!important;color:#36534b!important}
+#v-monthly .month-day-list-row input,#v-monthly .month-day-list-row textarea{
+ width:100%!important;box-sizing:border-box!important;margin:0!important;font-size:13px!important;padding:9px 10px!important;border-radius:9px!important;
+}
+#v-monthly .month-day-list-row textarea{height:42px!important;min-height:42px!important;resize:vertical!important}
+#v-monthly .month-menu-count-cell{height:42px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;border:1px solid #c9ddd7!important;border-radius:9px!important;background:#f2faf7!important}
+#v-monthly .month-menu-count-cell strong{font-size:14px!important;color:#087052!important}
+#v-monthly .month-open-day-btn{width:190px!important;height:42px!important;margin:0!important;align-self:end!important}
+#v-monthly .month-day-list-row.is-saturday .month-date-cell,#v-monthly .month-day-list-row.is-saturday .month-weekday-cell{background:#eef6ff!important;border-color:#8bbcf0!important;color:#1769aa!important}
+#v-monthly .month-day-list-row.is-sunday .month-date-cell,#v-monthly .month-day-list-row.is-sunday .month-weekday-cell{background:#fff1f1!important;border-color:#efa3a3!important;color:#c53030!important}
+@media(max-width:900px){
+ #v-monthly .month-day-row-first{grid-template-columns:58px 48px 1fr!important}
+ #v-monthly .month-theme-cell{grid-column:3!important}
+ #v-monthly .month-day-row-second{grid-template-columns:1fr 120px!important}
+ #v-monthly .month-open-day-btn{grid-column:1 / -1!important;width:100%!important}
+}
+@media(max-width:620px){
+ #v-monthly .month-day-row-first,#v-monthly .month-day-row-second{grid-template-columns:1fr!important;align-items:stretch!important}
+ #v-monthly .month-date-cell,#v-monthly .month-weekday-cell{height:36px!important}
+ #v-monthly .month-theme-cell{grid-column:auto!important}
+ #v-monthly .month-open-day-btn{grid-column:auto!important}
+}
+</style>
+
+<style id="monthly-editor-no-labels-half-height-final">
+/* 月間予定：枠外の項目名をなくし、1日分を約半分の高さに圧縮 */
+#v-monthly .month-grid:not(.viewer-month-grid){gap:4px!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-list-row{
+ min-height:0!important;padding:4px 7px!important;gap:3px!important;border-radius:9px!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-row{
+ gap:6px!important;align-items:center!important;min-height:0!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-first{
+ grid-template-columns:56px 42px minmax(150px,1fr) minmax(150px,1fr)!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-second{
+ grid-template-columns:minmax(250px,1fr) 78px 110px!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-field-cell{
+ display:block!important;gap:0!important;min-height:0!important;margin:0!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-field-cell>span,
+#v-monthly .month-grid:not(.viewer-month-grid) .month-menu-count-cell>span{display:none!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-date-cell,
+#v-monthly .month-grid:not(.viewer-month-grid) .month-weekday-cell,
+#v-monthly .month-grid:not(.viewer-month-grid) .month-menu-count-cell{
+ height:28px!important;min-height:28px!important;border-radius:7px!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-number{font-size:13px!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-weekday-badge{font-size:12px!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-list-row input,
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day-list-row textarea{
+ height:28px!important;min-height:28px!important;padding:4px 7px!important;border-radius:7px!important;
+ font-size:12px!important;line-height:18px!important;resize:none!important;
+}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-menu-count-cell strong{font-size:12px!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-open-day-btn{
+ width:110px!important;height:28px!important;min-height:28px!important;padding:0 8px!important;
+ border-radius:7px!important;font-size:11px!important;line-height:1!important;align-self:center!important;
+}
+@media(max-width:900px){
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-first{grid-template-columns:52px 38px 1fr!important}
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-theme-cell{grid-column:3!important}
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-second{grid-template-columns:1fr 68px!important}
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-open-day-btn{grid-column:1 / -1!important;width:100%!important}
+}
+@media(max-width:620px){
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-first,
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-day-row-second{grid-template-columns:1fr!important}
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-theme-cell,
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-open-day-btn{grid-column:auto!important}
+ #v-monthly .month-grid:not(.viewer-month-grid) .month-open-day-btn{width:100%!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -2020,7 +2125,7 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
   <aside class="panel sticky no-print">
    <div class="field"><label>日付</label><input id="dailyDate" type="date"></div>
    <div class="field"><label>行事</label><input id="event" placeholder="例：大会、記録会、休養日"></div>
-   <div class="field"><label>テーマ</label><input id="theme"></div>
+   <div class="field"><label>テーマ</label><input id="theme" list="themeOptions" autocomplete="off"></div>
    <div class="field"><label>連絡事項</label><textarea id="notes"></textarea></div>
    <div class="actions"><button id="saveDay" class="btn primary unified-action-btn">保存</button><button id="copyPrev" class="btn primary unified-action-btn">前日コピー</button><button id="deleteDay" class="btn danger">削除</button></div>
   </aside>
@@ -2099,6 +2204,13 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
  </div>
 </section>
 </main>
+<datalist id="themeOptions">
+ <option value="全体練習"></option>
+ <option value="専門練習"></option>
+ <option value="補強中心"></option>
+ <option value="レクレーション"></option>
+</datalist>
+
 
 <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
@@ -2948,7 +3060,7 @@ function renderWeek(){
  });
  el("weekDate").value=weekStart;
  el("weekTitle").textContent=`${dates[0]} ～ ${dates[6]}（月〜日）`;
- el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].event||"")}" placeholder="行事" onchange="setWeekEvent('${d}',this.value)" style="margin-top:5px;font-size:12px"><input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
+ el("weekHead").innerHTML=`<tr><th>区分</th>${dates.map(d=>`<th>${parseISO(d).toLocaleDateString("ja-JP",{timeZone:"UTC",month:"numeric",day:"numeric",weekday:"short"})}<input value="${esc(weekDraft[d].event||"")}" placeholder="行事" onchange="setWeekEvent('${d}',this.value)" style="margin-top:5px;font-size:12px"><input value="${esc(weekDraft[d].theme||"")}" placeholder="テーマ" list="themeOptions" autocomplete="off" onchange="setWeekTheme('${d}',this.value)" style="margin-top:5px;font-size:12px"></th>`).join("")}</tr>`;
  const overallIds=["beforeOverall","beforeStrength","drill","mainOverall","afterStrength","afterOverall"];
  const specialtyIds=["sprint","hurdle","jump","throw","distance","middleStrength"];
  function renderSectionRow(s){
@@ -3063,12 +3175,18 @@ function renderMonth(){
   const dow=parseISO(d).getUTCDay();
   const weekday=["日","月","火","水","木","金","土"][dow];
   const weekendClass=dow===0?"is-sunday":(dow===6?"is-saturday":"");
-  return `<div class="month-day ${dayHasContent(day)?"has-data":""} ${weekendClass}">
-   <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日（${weekday}）</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
-   <input value="${esc(day.event||"")}" placeholder="行事" oninput="setMonthEvent('${d}',this.value)">
-   <input value="${esc(day.theme||"")}" placeholder="テーマ" oninput="setMonthTheme('${d}',this.value)">
-   <textarea placeholder="連絡事項" oninput="setMonthNotes('${d}',this.value)">${esc(day.notes||"")}</textarea>
-   <button class="btn secondary small" onclick="openMonthDay('${d}')">1日入力を開く</button>
+  return `<div class="month-day month-day-list-row ${dayHasContent(day)?"has-data":""} ${weekendClass}">
+   <div class="month-day-row month-day-row-first">
+    <div class="month-date-cell"><span class="month-day-number">${Number(d.slice(-2))}日</span></div>
+    <div class="month-weekday-cell"><span class="month-weekday-badge">${weekday}</span></div>
+    <label class="month-field-cell month-event-cell"><input aria-label="行事" value="${esc(day.event||"")}" placeholder="行事" oninput="setMonthEvent('${d}',this.value)"></label>
+    <label class="month-field-cell month-theme-cell"><input aria-label="テーマ" value="${esc(day.theme||"")}" placeholder="テーマ" list="themeOptions" autocomplete="off" oninput="setMonthTheme('${d}',this.value)"></label>
+   </div>
+   <div class="month-day-row month-day-row-second">
+    <label class="month-field-cell month-notes-cell"><textarea aria-label="連絡事項" placeholder="連絡事項" oninput="setMonthNotes('${d}',this.value)">${esc(day.notes||"")}</textarea></label>
+    <div class="month-menu-count-cell" aria-label="メニューの件数"><strong>${count}件</strong></div>
+    <button class="btn secondary small month-open-day-btn" onclick="openMonthDay('${d}')">1日入力</button>
+   </div>
   </div>`;
  }).join("");
  let viewerWeeks="";
@@ -3080,7 +3198,7 @@ function renderMonth(){
    viewerWeeks+=`<section class="viewer-month-week"><div class="viewer-month-week-title">第${weekNo}週</div>${slots.slice(i,i+7).map(makeViewerDay).join("")}</section>`;
   }
  }
- el("monthGrid").innerHTML=viewer?viewerWeeks:(weekdays+blanks+editorCells);
+ el("monthGrid").innerHTML=viewer?viewerWeeks:editorCells;
 }
 window.setMonthEvent=(d,v)=>{monthDraft[d].event=v;monthDirty=true};
 window.setMonthTheme=(d,v)=>{monthDraft[d].theme=v;monthDirty=true};
