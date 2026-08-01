@@ -30,18 +30,24 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
         run: node scripts/backup-firestore.mjs
 
+      - name: Set backup date
+        run: echo "BACKUP_DATE=$(TZ=Asia/Tokyo date +'%Y-%m-%d')" >> "$GITHUB_ENV"
+
       - name: Encrypt backup
         env:
           BACKUP_ENCRYPTION_PASSWORD: ${{ secrets.BACKUP_ENCRYPTION_PASSWORD }}
         run: |
           test -n "$BACKUP_ENCRYPTION_PASSWORD"
-          openssl enc -aes-256-cbc -salt -pbkdf2             -in backup/hamawakiac-firestore-backup.json             -out backup/hamawakiac-firestore-backup.json.enc             -pass env:BACKUP_ENCRYPTION_PASSWORD
+          openssl enc -aes-256-cbc -salt -pbkdf2 \
+            -in backup/hamawakiac-firestore-backup.json \
+            -out "backup/hamawakiac-firestore-backup-${BACKUP_DATE}.json.enc" \
+            -pass env:BACKUP_ENCRYPTION_PASSWORD
           rm backup/hamawakiac-firestore-backup.json
 
       - name: Upload encrypted backup
         uses: actions/upload-artifact@v4
         with:
-          name: hamawakiac-firestore-backup-${{ github.run_number }}
-          path: backup/hamawakiac-firestore-backup.json.enc
+          name: hamawakiac-firestore-backup-${{ env.BACKUP_DATE }}
+          path: backup/hamawakiac-firestore-backup-${{ env.BACKUP_DATE }}.json.enc
           retention-days: 90
           if-no-files-found: error
