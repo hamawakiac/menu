@@ -1931,6 +1931,51 @@ body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-day .mon
  body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-line{min-height:25px!important;padding:3px 6px!important}
 }
 </style>
+
+<style id="month-weekday-vertical-week-groups">
+/* viewer：1週間ごとに区切り、月曜から日曜を縦に並べる */
+body.viewer-mode #v-monthly .month-grid.viewer-month-grid{
+  display:flex!important;flex-direction:column!important;gap:14px!important;
+}
+body.viewer-mode #v-monthly .viewer-month-week{
+  display:flex;flex-direction:column;gap:5px;padding:9px;
+  border:1px solid #cbded7;border-radius:15px;background:#f9fcfb;
+  box-shadow:0 5px 14px rgba(15,83,64,.06);
+}
+body.viewer-mode #v-monthly .viewer-month-week-title{
+  padding:2px 5px 7px;color:#174c3d;font-size:14px;font-weight:900;
+  border-bottom:1px solid #d9e8e3;
+}
+body.viewer-mode #v-monthly .viewer-month-empty-day{display:none!important}
+body.viewer-mode #v-monthly .viewer-month-day{
+  grid-template-columns:112px minmax(0,1fr)!important;gap:5px 12px!important;
+  border-radius:10px!important;padding:7px 9px!important;
+}
+body.viewer-mode #v-monthly .viewer-month-day .month-day-head{
+  grid-row:1 / span 3!important;display:grid!important;
+  grid-template-columns:30px 1fr!important;align-items:center!important;
+  align-content:start!important;gap:4px 7px!important;padding-top:1px!important;
+}
+body.viewer-mode #v-monthly .viewer-weekday-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;background:#e7f3ef;
+  color:#176149;font-size:13px;font-weight:900;
+}
+body.viewer-mode #v-monthly .viewer-month-day .month-day-number{font-size:16px!important}
+body.viewer-mode #v-monthly .viewer-month-day .month-day-count{grid-column:1 / -1!important;width:max-content!important}
+body.viewer-mode #v-monthly .viewer-month-day.is-saturday .viewer-weekday-badge{background:#dbeafe;color:#1769aa}
+body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{background:#fee2e2;color:#c53030}
+/* admin/editor：日付に曜日を表示し土日を配色 */
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day.is-saturday{background:#f5f9ff!important;border-color:#8bbcf0!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day.is-saturday .month-day-number{color:#1769aa!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day.is-sunday{background:#fff7f7!important;border-color:#efa3a3!important}
+#v-monthly .month-grid:not(.viewer-month-grid) .month-day.is-sunday .month-day-number{color:#c53030!important}
+@media(max-width:650px){
+ body.viewer-mode #v-monthly .viewer-month-day{grid-template-columns:1fr!important}
+ body.viewer-mode #v-monthly .viewer-month-day .month-day-head{grid-row:auto!important;grid-template-columns:30px auto 1fr!important}
+ body.viewer-mode #v-monthly .viewer-month-day .month-day-count{grid-column:auto!important;justify-self:end!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -2461,9 +2506,9 @@ function dayHTML(date,day){
  const totalMenus=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
 
  const metaLine=`<div class="today-meta-line">
-   <div class="today-meta-item"><b>行事：</b><span class="${day.event?"":"today-meta-empty"}">${day.event?esc(day.event):"未設定"}</span></div>
-   <div class="today-meta-item"><b>テーマ：</b><span class="${day.theme?"":"today-meta-empty"}">${day.theme?esc(day.theme):"未設定"}</span></div>
-   <div class="today-meta-item today-meta-notes"><b>連絡事項：</b><span class="${day.notes?"":"today-meta-empty"}">${day.notes?esc(day.notes):"未設定"}</span></div>
+   <div class="today-meta-item"><b>行事：</b><span class="${day.event?"":"today-meta-empty"}">${day.event?esc(day.event):""}</span></div>
+   <div class="today-meta-item"><b>テーマ：</b><span class="${day.theme?"":"today-meta-empty"}">${day.theme?esc(day.theme):""}</span></div>
+   <div class="today-meta-item today-meta-notes"><b>連絡事項：</b><span class="${day.notes?"":"today-meta-empty"}">${day.notes?esc(day.notes):""}</span></div>
   </div>`;
 
  return `${metaLine}
@@ -2989,29 +3034,44 @@ function renderMonth(){
  const weekdays=["月","火","水","木","金","土","日"].map(w=>`<div class="month-weekday">${w}</div>`).join("");
  const blanks=Array.from({length:firstOffset},()=>`<div class="month-day other"></div>`).join("");
  const viewer=currentRole==="viewer";
- const cells=dates.map(d=>{
+ const makeViewerDay=d=>{
+  if(!d)return `<div class="viewer-month-empty-day" aria-hidden="true"></div>`;
   const day=monthDraft[d]||blankDay();
   const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
-  if(viewer){
-   const dow=parseISO(d).getUTCDay();
-   const weekday=["日","月","火","水","木","金","土"][dow];
-   const weekendClass=dow===0?"is-sunday":(dow===6?"is-saturday":"");
-   return `<div class="month-day ${dayHasContent(day)?"has-data":""} viewer-month-day ${weekendClass}">
-    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日（${weekday}）</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
-    <div class="viewer-month-line"><b>行事：</b><span>${day.event?esc(day.event):"未設定"}</span></div>
-    <div class="viewer-month-line"><b>テーマ：</b><span>${day.theme?esc(day.theme):"未設定"}</span></div>
-    <div class="viewer-month-line"><b>連絡：</b><span>${day.notes?esc(day.notes):"未設定"}</span></div>
-   </div>`;
-  }
-  return `<div class="month-day ${dayHasContent(day)?"has-data":""}">
-   <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+  const dow=parseISO(d).getUTCDay();
+  const weekday=["日","月","火","水","木","金","土"][dow];
+  const weekendClass=dow===0?"is-sunday":(dow===6?"is-saturday":"");
+  return `<div class="month-day ${dayHasContent(day)?"has-data":""} viewer-month-day ${weekendClass}">
+   <div class="month-day-head"><span class="viewer-weekday-badge">${weekday}</span><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+   <div class="viewer-month-line"><b>行事：</b><span>${day.event?esc(day.event):""}</span></div>
+   <div class="viewer-month-line"><b>テーマ：</b><span>${day.theme?esc(day.theme):""}</span></div>
+   <div class="viewer-month-line"><b>連絡：</b><span>${day.notes?esc(day.notes):""}</span></div>
+  </div>`;
+ };
+ const editorCells=dates.map(d=>{
+  const day=monthDraft[d]||blankDay();
+  const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
+  const dow=parseISO(d).getUTCDay();
+  const weekday=["日","月","火","水","木","金","土"][dow];
+  const weekendClass=dow===0?"is-sunday":(dow===6?"is-saturday":"");
+  return `<div class="month-day ${dayHasContent(day)?"has-data":""} ${weekendClass}">
+   <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日（${weekday}）</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
    <input value="${esc(day.event||"")}" placeholder="行事" oninput="setMonthEvent('${d}',this.value)">
    <input value="${esc(day.theme||"")}" placeholder="テーマ" oninput="setMonthTheme('${d}',this.value)">
    <textarea placeholder="連絡事項" oninput="setMonthNotes('${d}',this.value)">${esc(day.notes||"")}</textarea>
    <button class="btn secondary small" onclick="openMonthDay('${d}')">1日入力を開く</button>
   </div>`;
  }).join("");
- el("monthGrid").innerHTML=viewer?cells:(weekdays+blanks+cells);
+ let viewerWeeks="";
+ if(viewer){
+  const slots=Array(firstOffset).fill(null).concat(dates);
+  while(slots.length%7)slots.push(null);
+  for(let i=0;i<slots.length;i+=7){
+   const weekNo=i/7+1;
+   viewerWeeks+=`<section class="viewer-month-week"><div class="viewer-month-week-title">第${weekNo}週</div>${slots.slice(i,i+7).map(makeViewerDay).join("")}</section>`;
+  }
+ }
+ el("monthGrid").innerHTML=viewer?viewerWeeks:(weekdays+blanks+editorCells);
 }
 window.setMonthEvent=(d,v)=>{monthDraft[d].event=v;monthDirty=true};
 window.setMonthTheme=(d,v)=>{monthDraft[d].theme=v;monthDirty=true};
@@ -3031,7 +3091,7 @@ function monthPrintHTML(month){
    ${day.event?`<div class="month-print-line"><b>行事：</b>${esc(day.event)}</div>`:""}
    ${day.theme?`<div class="month-print-line"><b>テーマ：</b>${esc(day.theme)}</div>`:""}
    ${day.notes?`<div class="month-print-line"><b>連絡：</b>${esc(day.notes)}</div>`:""}
-   ${menuCount?`<div class="month-print-line"><b>メニュー：</b>${menuCount}件</div>`:`<div class="month-print-line month-print-empty">未入力</div>`}
+   ${menuCount?`<div class="month-print-line"><b>メニュー：</b>${menuCount}件</div>`:`<div class="month-print-line month-print-empty"></div>`}
   </div>`;
  }).join("");
  return `<div class="month-print-grid">${weekdays}${blanks}${cells}</div>`;
