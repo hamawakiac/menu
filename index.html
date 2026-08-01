@@ -1095,6 +1095,10 @@ header,
  #printRoot .week-print-label small{font-size:10.5pt!important;font-weight:800!important;white-space:nowrap!important;color:#fff!important}
 }
 </style>
+<style id="viewer-date-only-hide-safety">
+#todayContent,#currentWeekPanel{display:block}
+body.viewer-mode #todayDate{display:none!important}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1375,22 +1379,25 @@ function canEditApp(){
 }
 
 function applyRoleUI(){
- const viewer=!canEditApp();
+ // viewerだけを閲覧専用として扱う。権限読込前のnull状態では画面を消さない。
+ const viewer=currentRole==="viewer";
 
  document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="monthly"], nav button[data-view="menus"]')
   .forEach(btn=>btn.style.display=viewer?"none":"");
 
- if(viewer){
+ if(viewer && currentView!=="today"){
   nav("today",{skipConfirm:true});
  }
 
- const editDayButton=el("editDay");
- if(editDayButton) editDayButton.style.display=viewer?"none":"";
+ // viewerでは操作ボタンだけを隠す。
+ document.querySelectorAll(".viewer-hide").forEach(node=>{
+  node.style.display=viewer?"none":"";
+ });
 
- // viewerには練習メニューの日付選択欄を表示しない。
- // 選択中の日付表示は残し、当日のメニューだけを確認できるようにする。
+ // 日付入力欄だけを非表示にし、選択日表示・練習内容・週間一覧は残す。
  const todayDateInput=el("todayDate");
  if(todayDateInput){
+  todayDateInput.hidden=viewer;
   if(viewer){
    todayDateInput.style.setProperty("display","none","important");
   }else{
@@ -1398,9 +1405,12 @@ function applyRoleUI(){
   }
  }
 
- document.querySelectorAll(".viewer-hide").forEach(node=>{
-  node.style.display=viewer?"none":"";
- });
+ const selectedLabel=el("todaySelectedLabel");
+ if(selectedLabel)selectedLabel.style.display="";
+ const todayContent=el("todayContent");
+ if(todayContent)todayContent.style.display="";
+ const weekPanel=el("currentWeekPanel");
+ if(weekPanel)weekPanel.style.display="";
 
  refreshUserText();
 }
