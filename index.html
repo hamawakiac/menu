@@ -1378,9 +1378,71 @@ body.viewer-mode #todayDate{display:none!important}
 }
 </style>
 
-<style id="viewer-month-second-toolbar-hide-final">
-body.viewer-mode #v-monthly .month-toolbar{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
-body.viewer-mode #v-monthly #viewerMonthToolbar{display:flex!important;visibility:visible!important}
+<style id="viewer-weekday-admin-month-print-portrait-fix">
+/* viewer：曜日を日付に表示し、土日を明確にする */
+.month-grid.viewer-month-grid .viewer-month-day.is-saturday{
+  border-color:#7bb6f0!important;
+  box-shadow:inset 5px 0 0 #3b82f6!important;
+  background:#f5f9ff!important;
+}
+.month-grid.viewer-month-grid .viewer-month-day.is-saturday .month-day-number{color:#1769aa!important}
+.month-grid.viewer-month-grid .viewer-month-day.is-sunday{
+  border-color:#ef9b9b!important;
+  box-shadow:inset 5px 0 0 #e05252!important;
+  background:#fff7f7!important;
+}
+.month-grid.viewer-month-grid .viewer-month-day.is-sunday .month-day-number{color:#c53030!important}
+
+/* 4列表示など曜日見出しを消す画面幅では、月初の空欄枠も表示しない */
+@media(max-width:1100px){
+  #v-monthly .month-grid:not(.viewer-month-grid) .month-day.other{display:none!important}
+}
+
+/* admin・editor：月間行事はA4縦1ページを全面利用 */
+@media print{
+  @page{size:A4 portrait;margin:4mm!important}
+  body.print-month-portrait{margin:0!important;padding:0!important}
+  body.print-month-portrait #printRoot{
+    width:202mm!important;max-width:202mm!important;
+    height:289mm!important;max-height:289mm!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;
+  }
+  body.print-month-portrait #printRoot .print-page{
+    width:202mm!important;min-width:202mm!important;max-width:202mm!important;
+    height:289mm!important;min-height:289mm!important;max-height:289mm!important;
+    margin:0!important;padding:0!important;overflow:hidden!important;
+    page-break-after:avoid!important;break-after:avoid-page!important;
+  }
+  body.print-month-portrait #printRoot .print-page-inner{
+    width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+    padding:3mm!important;overflow:hidden!important;transform:none!important;zoom:1!important;
+  }
+  body.print-month-portrait #printRoot .print-sheet-title{
+    font-size:11pt!important;line-height:1.05!important;padding:1.2mm 2mm!important;margin:0 0 .7mm!important;
+  }
+  body.print-month-portrait #printRoot .print-page-label{
+    font-size:10pt!important;line-height:1.05!important;padding:1.2mm 2mm!important;margin:0 0 1mm!important;
+  }
+  body.print-month-portrait #printRoot .month-print-grid{
+    display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    grid-template-rows:6.5mm repeat(6,minmax(0,1fr))!important;
+    gap:.65mm!important;width:100%!important;height:269mm!important;overflow:hidden!important;
+  }
+  body.print-month-portrait #printRoot .month-print-weekday{
+    min-height:0!important;height:6.5mm!important;padding:1.2mm .3mm!important;
+    font-size:7.2pt!important;line-height:1!important;
+  }
+  body.print-month-portrait #printRoot .month-print-day{
+    min-height:0!important;height:auto!important;padding:.8mm!important;border-radius:.7mm!important;overflow:hidden!important;
+  }
+  body.print-month-portrait #printRoot .month-print-day-number{
+    font-size:7.3pt!important;line-height:1!important;margin-bottom:.45mm!important;
+  }
+  body.print-month-portrait #printRoot .month-print-line{
+    font-size:5.9pt!important;line-height:1.12!important;margin:.2mm 0!important;
+    overflow-wrap:anywhere!important;word-break:break-word!important;
+  }
+}
 </style>
 </head>
 <body>
@@ -1470,7 +1532,7 @@ body.viewer-mode #v-monthly #viewerMonthToolbar{display:flex!important;visibilit
     </label>
     <div class="month-control-actions">
      <button id="saveMonth" class="btn primary">1か月を保存</button>
-     <button id="printInputMonth" class="btn secondary print-purpose-btn">🖨 月間行事を印刷（横向き）</button>
+     <button id="printInputMonth" class="btn secondary print-purpose-btn">印刷</button>
     </div>
    </div>
   </div>
@@ -1665,7 +1727,6 @@ function canEditApp(){
 function applyRoleUI(){
  // viewerだけを閲覧専用として扱う。権限読込前のnull状態では画面を消さない。
  const viewer=currentRole==="viewer";
- document.body.classList.toggle("viewer-mode",viewer);
 
  document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="menus"]')
   .forEach(btn=>btn.style.display=viewer?"none":"");
@@ -1701,14 +1762,7 @@ function applyRoleUI(){
 
  // viewerには月間予定表を閲覧専用で表示する。月選択・保存・印刷は隠す。
  const monthToolbar=document.querySelector("#v-monthly .month-toolbar");
- if(monthToolbar){
-  monthToolbar.hidden=viewer;
-  if(viewer){
-   monthToolbar.style.setProperty("display","none","important");
-  }else{
-   monthToolbar.style.removeProperty("display");
-  }
- }
+ if(monthToolbar)monthToolbar.style.display=viewer?"none":"";
  const viewerMonthToolbar=el("viewerMonthToolbar");
  if(viewerMonthToolbar){
   viewerMonthToolbar.hidden=!viewer;
@@ -1977,7 +2031,7 @@ function mountPrintPages(pages){
  const fragment=document.createDocumentFragment();
  pages.forEach(page=>fragment.appendChild(page));
  root.appendChild(fragment);
- root.style.cssText=`position:fixed;left:-10000px;top:0;display:block;width:${document.body.classList.contains("print-month-landscape")?"289mm":"198mm"};background:#fff;visibility:hidden;pointer-events:none`;
+ root.style.cssText=`position:fixed;left:-10000px;top:0;display:block;width:${document.body.classList.contains("print-month-landscape")?"289mm":(document.body.classList.contains("print-month-portrait")?"202mm":"198mm")};background:#fff;visibility:hidden;pointer-events:none`;
  document.body.appendChild(root);
  fitAllPrintPages(root);
  root.style.position="static";
@@ -2056,8 +2110,8 @@ function performPreparedPrint(builder){
 function cleanupOnePagePrint(){
  const root=document.getElementById("printRoot");
  if(root)root.remove();
- document.body.classList.remove("print-month-landscape");
- const pageStyle=document.getElementById("monthLandscapePageStyle");
+ document.body.classList.remove("print-month-landscape","print-month-portrait");
+ const pageStyle=document.getElementById("monthLandscapePageStyle")||document.getElementById("monthPortraitPageStyle");
  if(pageStyle)pageStyle.remove();
 }
 function dayHasContent(day){
@@ -2272,8 +2326,11 @@ function renderMonth(){
   const day=monthDraft[d]||blankDay();
   const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
   if(viewer){
-   return `<div class="month-day ${dayHasContent(day)?"has-data":""} viewer-month-day">
-    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+   const dow=parseISO(d).getUTCDay();
+   const weekday=["日","月","火","水","木","金","土"][dow];
+   const weekendClass=dow===0?"is-sunday":(dow===6?"is-saturday":"");
+   return `<div class="month-day ${dayHasContent(day)?"has-data":""} viewer-month-day ${weekendClass}">
+    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日（${weekday}）</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
     <div class="viewer-month-line"><b>行事：</b><span>${day.event?esc(day.event):"未設定"}</span></div>
     <div class="viewer-month-line"><b>テーマ：</b><span>${day.theme?esc(day.theme):"未設定"}</span></div>
     <div class="viewer-month-line"><b>連絡：</b><span>${day.notes?esc(day.notes):"未設定"}</span></div>
@@ -2313,13 +2370,13 @@ function monthPrintHTML(month){
  return `<div class="month-print-grid">${weekdays}${blanks}${cells}</div>`;
 }
 function prepareMonthPrint(){
- document.body.classList.add("print-month-landscape");
- let pageStyle=document.getElementById("monthLandscapePageStyle");
+ document.body.classList.add("print-month-portrait");
+ let pageStyle=document.getElementById("monthPortraitPageStyle");
  if(!pageStyle){
   pageStyle=document.createElement("style");
-  pageStyle.id="monthLandscapePageStyle";
+  pageStyle.id="monthPortraitPageStyle";
   pageStyle.media="print";
-  pageStyle.textContent="@page{size:A4 landscape;margin:4mm!important}";
+  pageStyle.textContent="@page{size:A4 portrait;margin:4mm!important}";
   document.head.appendChild(pageStyle);
  }
  const month=monthCursor;
@@ -2351,7 +2408,7 @@ if(printInputMonthBtn)printInputMonthBtn.onclick=()=>{
   alert("月間行事の印刷データを作成できませんでした。");
   return;
  }
- // @pageの横向き指定をChromeへ確実に反映させてから印刷画面を開く。
+ // @pageの縦向き指定をChromeへ確実に反映させてから印刷画面を開く。
  void document.documentElement.offsetWidth;
  requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),350)));
 };
