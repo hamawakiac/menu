@@ -1,0 +1,30 @@
+浜脇AC：無料の毎週自動バックアップ設定
+
+【仕組み】
+毎週日曜日23:00（日本時間）にGitHub ActionsがFirestoreの menus / days / members を取得し、暗号化したバックアップをActionsのArtifactへ保存します。保存期間は90日です。
+
+【最初に1回だけ必要な設定】
+1. Firebaseコンソールで hamawakiac-menu を開く。
+2. プロジェクトの設定 → サービスアカウント → 新しい秘密鍵の生成。
+3. ダウンロードしたJSONの内容をすべてコピーする。
+4. GitHubの hamawakiac/menu → Settings → Secrets and variables → Actions。
+5. New repository secretで次を作成する。
+   名前: FIREBASE_SERVICE_ACCOUNT_JSON
+   値: サービスアカウントJSONの全文
+6. もう1つSecretを作成する。
+   名前: BACKUP_ENCRYPTION_PASSWORD
+   値: 自分だけが分かる長い復号パスワード
+
+【動作確認】
+GitHub → Actions → Weekly Firestore Backup → Run workflow。
+完了後、実行結果画面のArtifactsから暗号化バックアップをダウンロードできます。
+
+【重要】
+・サービスアカウントJSONや復号パスワードをindex.htmlや公開ファイルへ直接書かないでください。
+・復号パスワードを忘れるとバックアップを開けません。
+・公開リポジトリでも内容が読めないよう、バックアップはAES-256で暗号化されます。
+・GitHubの仕様上、公開リポジトリで長期間更新がないと定期ワークフローが停止する場合があります。Actions画面から再度有効化できます。
+
+【Windowsで復号する例】
+OpenSSLが使える環境で次を実行します。
+openssl enc -d -aes-256-cbc -pbkdf2 -in hamawakiac-firestore-backup.json.enc -out backup.json

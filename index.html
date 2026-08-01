@@ -1161,7 +1161,7 @@ header,
     <strong id="weekTitle"></strong>
    </label>
    <div class="week-nav-group week-nav-right">
-    <button id="saveWeek" class="btn primary">1週間を保存</button>
+    <button id="copyWeekNext" class="btn secondary">選択週を翌週へコピー</button><button id="saveWeek" class="btn primary">1週間を保存</button>
     <button id="nextWeek" class="btn secondary">次の週 →</button>
    </div>
   </div>
@@ -1888,6 +1888,48 @@ el("weekDate").onchange=e=>{
  if(weekDirty&&!confirmLeaveWithUnsaved()){e.target.value=previousWeekDate||weekStart;return}
  weekStart=getMonday(e.target.value);previousWeekDate=weekStart;loadWeek();renderWeek();
 }
+el("copyWeekNext").onclick=()=>{
+ if(!canEditApp())return alert("閲覧専用アカウントではコピーできません。");
+ const sourceDates=Array.from({length:7},(_,i)=>addDays(weekStart,i));
+ const hasSource=sourceDates.some(date=>dayHasContent(weekDraft[date]));
+ if(!hasSource)return alert("選択した週にコピーできる内容がありません。");
+ const destinationStart=addDays(weekStart,7);
+ const destinationDates=Array.from({length:7},(_,i)=>addDays(destinationStart,i));
+ const destinationHasData=destinationDates.some(date=>dayHasContent(days[date]));
+ const message=destinationHasData
+  ? `${fmt(destinationStart)}からの週には入力済みデータがあります。コピー内容で上書きする準備をしますか？\n\n※「1週間を保存」を押すまではFirestoreへ保存されません。`
+  : `${fmt(weekStart)}からの1週間を、翌週へコピーしますか？\n\n※コピー後に内容を確認し、「1週間を保存」を押してください。`;
+ if(!confirm(message))return;
+ const nowISO=new Date().toISOString();
+ const addedBy=currentUpdaterName();
+ const copiedDraft={};
+ const changed={};
+ sourceDates.forEach((sourceDate,index)=>{
+  const targetDate=destinationDates[index];
+  const source=normalizeDay(weekDraft[sourceDate]);
+  const copied=normalizeDay(structuredClone(source));
+  copied.sectionMeta={};
+  copied.sectionItemMeta={};
+  SECTIONS.forEach(section=>{
+   const ids=[...(source.sections?.[section.id]||[])];
+   copied.sections[section.id]=ids;
+   copied.sectionItemMeta[section.id]=ids.map(()=>({addedBy,addedAtText:nowISO}));
+  });
+  copied.updatedBy=addedBy;
+  copied.updatedAtText=nowISO;
+  copiedDraft[targetDate]=copied;
+  changed[targetDate]=new Set(SECTIONS.filter(section=>(copied.sections?.[section.id]||[]).length).map(section=>section.id));
+ });
+ weekStart=destinationStart;
+ previousWeekDate=destinationStart;
+ weekDraft=copiedDraft;
+ weekChangedSections=changed;
+ weekDirty=true;
+ renderWeek();
+ window.scrollTo({top:0,behavior:"smooth"});
+ alert("翌週へコピーしました。内容を確認してから「1週間を保存」を押してください。");
+};
+
 el("saveWeek").onclick=async()=>{
  if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
  try{
