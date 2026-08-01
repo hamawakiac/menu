@@ -1186,7 +1186,7 @@ body.viewer-mode #todayDate{display:none!important}
 </style>
 
 <style id="monthly-toolbar-match-weekly">
-/* 月間行事：週間入力と同じ操作枠 */
+/* 月間予定：週間入力と同じ操作枠 */
 #v-monthly .month-toolbar{
  display:block!important;
  margin:0 0 14px!important;
@@ -1398,7 +1398,7 @@ body.viewer-mode #todayDate{display:none!important}
   #v-monthly .month-grid:not(.viewer-month-grid) .month-day.other{display:none!important}
 }
 
-/* admin・editor：月間行事はA4縦1ページを全面利用 */
+/* admin・editor：月間予定はA4縦1ページを全面利用 */
 @media print{
   @page{size:A4 portrait;margin:4mm!important}
   body.print-month-portrait{margin:0!important;padding:0!important}
@@ -1462,6 +1462,18 @@ body.viewer-mode #v-monthly .month-control-actions {
 }
 body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible !important;height:auto !important}
 </style>
+
+<style id="selected-print-major-title-unify">
+@media print{
+ #printRoot .print-overall-page .today-major-title,
+ #printRoot .print-specialty-page .today-major-title{
+  font-size:13pt!important;
+  line-height:1.35!important;
+  font-weight:900!important;
+  padding:2.6mm 3.2mm!important;
+ }
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1483,7 +1495,7 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
   <button class="active" data-view="today">📓 練習メニュー</button>
   <button data-view="daily">✏️ 1日入力</button>
   <button data-view="weekly">✏️ 週間入力</button>
-  <button data-view="monthly">📅 月間行事</button>
+  <button data-view="monthly">📅 月間予定</button>
   <button data-view="menus">✏️ メニュー作成</button>
  </nav>
 </div></header>
@@ -2414,7 +2426,7 @@ function prepareMonthPrint(){
  page.className="print-page print-month-page";
  page.innerHTML=`<div class="print-page-inner">
   <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
-  <div class="print-page-label">${y}年${m}月 月間行事</div>
+  <div class="print-page-label">${y}年${m}月 月間予定</div>
   ${monthPrintHTML(month)}
  </div>`;
  return mountPrintPages([page]);
@@ -2434,7 +2446,7 @@ el("monthDate").onchange=e=>{
 const printInputMonthBtn=el("printInputMonth");
 if(printInputMonthBtn)printInputMonthBtn.onclick=()=>{
  if(!prepareMonthPrint()){
-  alert("月間行事の印刷データを作成できませんでした。");
+  alert("月間予定の印刷データを作成できませんでした。");
   return;
  }
  // @pageの縦向き指定をChromeへ確実に反映させてから印刷画面を開く。
