@@ -1444,6 +1444,24 @@ body.viewer-mode #todayDate{display:none!important}
   }
 }
 </style>
+
+<style id="viewer-month-toolbar-definitive-removal">
+/* viewerの月間予定表では編集用の2行目バーを完全に除外 */
+body.viewer-mode #v-monthly .month-toolbar,
+body.viewer-mode #v-monthly .month-control-box,
+body.viewer-mode #v-monthly .month-date-control,
+body.viewer-mode #v-monthly .month-control-actions {
+  display:none !important;
+  visibility:hidden !important;
+  height:0 !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  overflow:hidden !important;
+}
+body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible !important;height:auto !important}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1727,6 +1745,7 @@ function canEditApp(){
 function applyRoleUI(){
  // viewerだけを閲覧専用として扱う。権限読込前のnull状態では画面を消さない。
  const viewer=currentRole==="viewer";
+ document.body.classList.toggle("viewer-mode",viewer);
 
  document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="menus"]')
   .forEach(btn=>btn.style.display=viewer?"none":"");
@@ -1762,7 +1781,17 @@ function applyRoleUI(){
 
  // viewerには月間予定表を閲覧専用で表示する。月選択・保存・印刷は隠す。
  const monthToolbar=document.querySelector("#v-monthly .month-toolbar");
- if(monthToolbar)monthToolbar.style.display=viewer?"none":"";
+ if(monthToolbar){
+  monthToolbar.hidden=viewer;
+  monthToolbar.setAttribute("aria-hidden",viewer?"true":"false");
+  if(viewer){
+   monthToolbar.style.setProperty("display","none","important");
+   monthToolbar.style.setProperty("visibility","hidden","important");
+  }else{
+   monthToolbar.style.removeProperty("display");
+   monthToolbar.style.removeProperty("visibility");
+  }
+ }
  const viewerMonthToolbar=el("viewerMonthToolbar");
  if(viewerMonthToolbar){
   viewerMonthToolbar.hidden=!viewer;
