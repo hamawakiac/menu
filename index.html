@@ -1,6 +1,12 @@
 <!doctype html>
 <html lang="ja">
 <head>
+<link rel="icon" type="image/x-icon" href="./favicon.ico?v=20260801">
+<link rel="shortcut icon" href="./favicon.ico?v=20260801">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=20260801">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png?v=20260801">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=20260801">
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>浜脇AC│トレーニングメニュー</title>
@@ -1297,6 +1303,27 @@ body.viewer-mode #todayDate{display:none!important}
 .viewer-month-line b{white-space:nowrap;color:#35534a}
 .viewer-month-line span{overflow-wrap:anywhere}
 </style>
+
+<style id="viewer-month-simple-toolbar-and-full-print">
+.viewer-month-toolbar{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;margin:0 0 14px;padding:12px 14px;border:1px solid #c9ddd6;border-radius:15px;background:linear-gradient(135deg,#f8fcfa,#edf7f3);box-shadow:0 5px 16px rgba(15,83,64,.07)}
+.viewer-month-toolbar strong{min-width:140px;text-align:center;color:#173f34;font-size:19px;font-weight:900}
+.viewer-month-toolbar .btn{min-width:118px}
+@media(max-width:560px){.viewer-month-toolbar{display:grid;grid-template-columns:1fr auto 1fr;gap:7px;padding:9px}.viewer-month-toolbar strong{min-width:0;font-size:16px}.viewer-month-toolbar .btn{min-width:0;padding:9px 7px;font-size:12px}}
+@media print{
+ @page{size:A4 landscape;margin:4mm!important}
+ body.print-month-landscape{margin:0!important;padding:0!important}
+ body.print-month-landscape #printRoot{width:289mm!important;max-width:289mm!important;height:202mm!important;max-height:202mm!important;margin:0!important;padding:0!important;overflow:hidden!important}
+ body.print-month-landscape #printRoot .print-page{width:289mm!important;min-width:289mm!important;max-width:289mm!important;height:202mm!important;min-height:202mm!important;max-height:202mm!important;margin:0!important;padding:0!important;overflow:hidden!important;page-break-after:avoid!important;break-after:avoid-page!important}
+ body.print-month-landscape #printRoot .print-page-inner{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;padding:2.5mm!important;overflow:hidden!important;transform:none!important;zoom:1!important}
+ body.print-month-landscape #printRoot .print-sheet-title{font-size:11pt!important;line-height:1.1!important;padding:1.6mm 2mm!important;margin:0 0 1mm!important}
+ body.print-month-landscape #printRoot .print-page-label{font-size:10pt!important;line-height:1.1!important;padding:1.4mm 2mm!important;margin:0 0 1.5mm!important}
+ body.print-month-landscape #printRoot .month-print-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;grid-template-rows:7mm repeat(6,29.5mm)!important;gap:.7mm!important;width:100%!important;height:185mm!important;overflow:hidden!important}
+ body.print-month-landscape #printRoot .month-print-weekday{min-height:0!important;height:7mm!important;padding:1.2mm .5mm!important;font-size:7.5pt!important;line-height:1!important}
+ body.print-month-landscape #printRoot .month-print-day{min-height:0!important;height:29.5mm!important;padding:1mm!important;border-radius:.7mm!important;overflow:hidden!important}
+ body.print-month-landscape #printRoot .month-print-day-number{font-size:7.5pt!important;line-height:1!important;margin-bottom:.5mm!important}
+ body.print-month-landscape #printRoot .month-print-line{font-size:6.2pt!important;line-height:1.13!important;margin:.25mm 0!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1371,6 +1398,11 @@ body.viewer-mode #todayDate{display:none!important}
 
 <section id="v-monthly" class="view">
  <div class="panel">
+  <div id="viewerMonthToolbar" class="viewer-month-toolbar no-print" hidden>
+   <button id="viewerPrevMonth" class="btn secondary">← 前の月</button>
+   <strong id="viewerMonthTitle">2026年9月</strong>
+   <button id="viewerNextMonth" class="btn secondary">次の月 →</button>
+  </div>
   <div class="month-toolbar no-print">
    <div class="month-control-box">
     <strong id="monthTitle" class="month-range-title"></strong>
@@ -1611,6 +1643,11 @@ function applyRoleUI(){
  // viewerには月間予定表を閲覧専用で表示する。月選択・保存・印刷は隠す。
  const monthToolbar=document.querySelector("#v-monthly .month-toolbar");
  if(monthToolbar)monthToolbar.style.display=viewer?"none":"";
+ const viewerMonthToolbar=el("viewerMonthToolbar");
+ if(viewerMonthToolbar){
+  viewerMonthToolbar.hidden=!viewer;
+  viewerMonthToolbar.style.display=viewer?"flex":"none";
+ }
  const monthGrid=el("monthGrid");
  if(monthGrid)monthGrid.classList.toggle("viewer-month-grid",viewer);
 
@@ -1846,8 +1883,9 @@ function fitAllPrintPages(root){
  void root.offsetHeight;
 
  const maxH=getPrintMaxHeightPx();
- const scales=inners.map(inner=>{
+ const scales=inners.map((inner,index)=>{
   if(!inner)return 1;
+  if(pages[index]?.classList.contains("print-month-page"))return 1;
   const naturalH=Math.max(inner.scrollHeight,1);
   let scale=naturalH>maxH?maxH/naturalH:1;
   if(!Number.isFinite(scale)||scale<=0)scale=1;
@@ -1873,7 +1911,7 @@ function mountPrintPages(pages){
  const fragment=document.createDocumentFragment();
  pages.forEach(page=>fragment.appendChild(page));
  root.appendChild(fragment);
- root.style.cssText="position:fixed;left:-10000px;top:0;display:block;width:198mm;background:#fff;visibility:hidden;pointer-events:none";
+ root.style.cssText=`position:fixed;left:-10000px;top:0;display:block;width:${document.body.classList.contains("print-month-landscape")?"289mm":"198mm"};background:#fff;visibility:hidden;pointer-events:none`;
  document.body.appendChild(root);
  fitAllPrintPages(root);
  root.style.position="static";
@@ -2158,6 +2196,8 @@ function renderMonth(){
  el("monthDate").value=monthCursor;
  const [y,m]=monthCursor.split("-").map(Number);
  el("monthTitle").textContent=`${y}年${m}月（月曜始まり）`;
+ const viewerMonthTitle=el("viewerMonthTitle");
+ if(viewerMonthTitle)viewerMonthTitle.textContent=`${y}年${m}月`;
  const firstOffset=(parseISO(dates[0]).getUTCDay()+6)%7;
  const weekdays=["月","火","水","木","金","土","日"].map(w=>`<div class="month-weekday">${w}</div>`).join("");
  const blanks=Array.from({length:firstOffset},()=>`<div class="month-day other"></div>`).join("");
@@ -2213,7 +2253,7 @@ function prepareMonthPrint(){
   pageStyle=document.createElement("style");
   pageStyle.id="monthLandscapePageStyle";
   pageStyle.media="print";
-  pageStyle.textContent="@page{size:297mm 210mm;margin:6mm} @page monthLandscapePage{size:297mm 210mm;margin:6mm}";
+  pageStyle.textContent="@page{size:A4 landscape;margin:4mm!important}";
   document.head.appendChild(pageStyle);
  }
  const month=monthCursor;
@@ -2229,6 +2269,10 @@ function prepareMonthPrint(){
 }
 
 function shiftMonth(n){const [y,m]=monthCursor.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+n,1));monthCursor=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;loadMonth();renderMonth()}
+const viewerPrevMonthBtn=el("viewerPrevMonth");
+const viewerNextMonthBtn=el("viewerNextMonth");
+if(viewerPrevMonthBtn)viewerPrevMonthBtn.onclick=()=>shiftMonth(-1);
+if(viewerNextMonthBtn)viewerNextMonthBtn.onclick=()=>shiftMonth(1);
 el("monthDate").onfocus=e=>{previousMonthDate=e.target.value};
 el("monthDate").onchange=e=>{
  if(!e.target.value)return;
