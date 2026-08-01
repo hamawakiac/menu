@@ -1283,6 +1283,20 @@ body.viewer-mode #todayDate{display:none!important}
  body.print-month-landscape #printRoot .month-print-line{font-size:7.2pt!important;line-height:1.25!important}
 }
 </style>
+
+<style id="month-landscape-viewer-fix">
+@media print{
+ @page monthLandscapePage{size:297mm 210mm;margin:6mm}
+ #printRoot .print-month-page{page:monthLandscapePage!important}
+ body.print-month-landscape #printRoot,
+ body.print-month-landscape #printRoot .print-page,
+ body.print-month-landscape #printRoot .print-page-inner{box-sizing:border-box!important}
+}
+.viewer-month-grid .viewer-month-day{min-height:145px}
+.viewer-month-line{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;margin:5px 0;padding:6px 7px;border-radius:8px;background:#f7fbf9;font-size:12px;line-height:1.35}
+.viewer-month-line b{white-space:nowrap;color:#35534a}
+.viewer-month-line span{overflow-wrap:anywhere}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1562,10 +1576,12 @@ function applyRoleUI(){
  // viewerだけを閲覧専用として扱う。権限読込前のnull状態では画面を消さない。
  const viewer=currentRole==="viewer";
 
- document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="monthly"], nav button[data-view="menus"]')
+ document.querySelectorAll('nav button[data-view="daily"], nav button[data-view="weekly"], nav button[data-view="menus"]')
   .forEach(btn=>btn.style.display=viewer?"none":"");
+ const monthlyNav=document.querySelector('nav button[data-view="monthly"]');
+ if(monthlyNav)monthlyNav.style.display="";
 
- if(viewer && currentView!=="today"){
+ if(viewer && currentView!=="today" && currentView!=="monthly"){
   nav("today",{skipConfirm:true});
  }
 
@@ -1591,6 +1607,12 @@ function applyRoleUI(){
  if(todayContent)todayContent.style.display="";
  const weekPanel=el("currentWeekPanel");
  if(weekPanel)weekPanel.style.display="";
+
+ // viewerには月間予定表を閲覧専用で表示する。月選択・保存・印刷は隠す。
+ const monthToolbar=document.querySelector("#v-monthly .month-toolbar");
+ if(monthToolbar)monthToolbar.style.display=viewer?"none":"";
+ const monthGrid=el("monthGrid");
+ if(monthGrid)monthGrid.classList.toggle("viewer-month-grid",viewer);
 
  refreshUserText();
 }
@@ -1647,7 +1669,7 @@ function confirmLeaveWithUnsaved(){
  return ok;
 }
 function nav(view,options={}){
- if(currentRole==="viewer"&&view!=="today")view="today";
+ if(currentRole==="viewer"&&view!=="today"&&view!=="monthly")view="today";
  if(!options.skipConfirm&&view!==currentView&&!confirmLeaveWithUnsaved())return false;
  document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
@@ -2139,9 +2161,18 @@ function renderMonth(){
  const firstOffset=(parseISO(dates[0]).getUTCDay()+6)%7;
  const weekdays=["月","火","水","木","金","土","日"].map(w=>`<div class="month-weekday">${w}</div>`).join("");
  const blanks=Array.from({length:firstOffset},()=>`<div class="month-day other"></div>`).join("");
+ const viewer=currentRole==="viewer";
  const cells=dates.map(d=>{
   const day=monthDraft[d]||blankDay();
   const count=SECTIONS.reduce((n,s)=>n+(day.sections?.[s.id]?.length||0),0);
+  if(viewer){
+   return `<div class="month-day ${dayHasContent(day)?"has-data":""} viewer-month-day">
+    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
+    <div class="viewer-month-line"><b>行事：</b><span>${day.event?esc(day.event):"未設定"}</span></div>
+    <div class="viewer-month-line"><b>テーマ：</b><span>${day.theme?esc(day.theme):"未設定"}</span></div>
+    <div class="viewer-month-line"><b>連絡：</b><span>${day.notes?esc(day.notes):"未設定"}</span></div>
+   </div>`;
+  }
   return `<div class="month-day ${dayHasContent(day)?"has-data":""}">
    <div class="month-day-head"><span class="month-day-number">${Number(d.slice(-2))}日</span>${count?`<span class="month-day-count">${count}件</span>`:""}</div>
    <input value="${esc(day.event||"")}" placeholder="行事" oninput="setMonthEvent('${d}',this.value)">
@@ -2181,7 +2212,8 @@ function prepareMonthPrint(){
  if(!pageStyle){
   pageStyle=document.createElement("style");
   pageStyle.id="monthLandscapePageStyle";
-  pageStyle.textContent="@page{size:A4 landscape;margin:6mm}";
+  pageStyle.media="print";
+  pageStyle.textContent="@page{size:297mm 210mm;margin:6mm} @page monthLandscapePage{size:297mm 210mm;margin:6mm}";
   document.head.appendChild(pageStyle);
  }
  const month=monthCursor;
@@ -2204,7 +2236,15 @@ el("monthDate").onchange=e=>{
  monthCursor=e.target.value;previousMonthDate=monthCursor;loadMonth();renderMonth();
 };
 const printInputMonthBtn=el("printInputMonth");
-if(printInputMonthBtn)printInputMonthBtn.onclick=()=>performPreparedPrint(prepareMonthPrint);
+if(printInputMonthBtn)printInputMonthBtn.onclick=()=>{
+ if(!prepareMonthPrint()){
+  alert("月間行事の印刷データを作成できませんでした。");
+  return;
+ }
+ // @pageの横向き指定をChromeへ確実に反映させてから印刷画面を開く。
+ void document.documentElement.offsetWidth;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(()=>window.print(),350)));
+};
 el("saveMonth").onclick=async()=>{
  if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
  try{
