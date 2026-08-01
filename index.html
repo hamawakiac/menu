@@ -1474,6 +1474,25 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
  }
 }
 </style>
+
+<style id="specialty-print-four-field-layout">
+@media print{
+ #printRoot .print-specialty-page .specialty-print-major{border:1px solid #777!important;border-radius:2mm!important;overflow:hidden!important}
+ #printRoot .print-specialty-page .specialty-print-list{display:grid!important;grid-template-columns:1fr!important;gap:1.8mm!important;padding:2mm!important}
+ #printRoot .print-specialty-page .specialty-print-card{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,2.15fr)!important;border:.35mm solid #9aa9a4!important;border-radius:1.6mm!important;overflow:hidden!important;background:#fff!important;break-inside:avoid!important;page-break-inside:avoid!important}
+ #printRoot .print-specialty-page .specialty-print-cell{display:grid!important;grid-template-columns:20mm minmax(0,1fr)!important;align-items:start!important;gap:2mm!important;padding:2.1mm 2.5mm!important;min-width:0!important;font-size:11.8pt!important;line-height:1.42!important;border-bottom:.25mm solid #d7e1dd!important}
+ #printRoot .print-specialty-page .specialty-print-cell:nth-child(odd){border-right:.25mm solid #d7e1dd!important}
+ #printRoot .print-specialty-page .specialty-print-cell:nth-child(3),
+ #printRoot .print-specialty-page .specialty-print-cell:nth-child(4){border-bottom:0!important}
+ #printRoot .print-specialty-page .specialty-print-cell b{font-size:11.2pt!important;line-height:1.35!important;color:#126f5c!important;white-space:nowrap!important}
+ #printRoot .print-specialty-page .specialty-print-cell span{font-size:12.2pt!important;line-height:1.42!important;font-weight:700!important;color:#111!important;overflow-wrap:anywhere!important}
+ #printRoot .print-specialty-page .specialty-print-event span{font-size:13pt!important;font-weight:900!important}
+ #printRoot .print-specialty-page .specialty-print-description span{font-weight:600!important}
+ #printRoot .print-specialty-page .specialty-print-added span{font-size:11.2pt!important}
+ #printRoot .print-specialty-page .today-major-title{font-size:13pt!important;padding:2.6mm 3.2mm!important}
+ #printRoot .print-specialty-page .today-major-count{font-size:9.5pt!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -2095,6 +2114,31 @@ function buildSelectedDayPages(){
   .map(node=>node.outerHTML).join("");
  const overallBlock=parsed.querySelector(".today-major.overall")?.outerHTML||'<div class="today-empty-group">全体練習は設定されていません</div>';
  const specialtyBlock=parsed.querySelector(".today-major.events")?.outerHTML||'<div class="today-empty-group">専門種目練習は設定されていません</div>';
+ const specialtySectionIds=["sprint","hurdle","jump","throw","distance","middleStrength"];
+ const specialtyCards=specialtySectionIds.flatMap(sectionId=>{
+  const section=SECTIONS.find(item=>item.id===sectionId);
+  const ids=day.sections?.[sectionId]||[];
+  const metas=day.sectionItemMeta?.[sectionId]||[];
+  return ids.map((menuId,index)=>{
+   const menu=menus.find(item=>item.id===menuId);
+   if(!menu)return "";
+   const description=[menu.detail,menu.sets,menu.intensity,menu.rest,menu.duration].filter(Boolean).join("／")||"記載なし";
+   const caution=menu.caution||"記載なし";
+   const meta=metas[index]||{};
+   const addedBy=nameForDisplay(meta.addedBy||meta.updatedBy||"")||"記録なし";
+   const addedAt=meta.addedAtText?` ／ ${formatDateTime(meta.addedAtText)}`:"";
+   return `<article class="specialty-print-card">
+    <div class="specialty-print-cell specialty-print-event"><b>種目名</b><span>${esc(section?.label||"専門種目")}｜${esc(menu.name)}</span></div>
+    <div class="specialty-print-cell specialty-print-description"><b>説明</b><span>${esc(description)}</span></div>
+    <div class="specialty-print-cell specialty-print-caution"><b>注意点</b><span>${esc(caution)}</span></div>
+    <div class="specialty-print-cell specialty-print-added"><b>追加者</b><span>${esc(addedBy+addedAt)}</span></div>
+   </article>`;
+  });
+ }).filter(Boolean).join("");
+ const specialtyPrintBlock=`<div class="today-major events specialty-print-major">
+  <div class="today-major-title"><span>専門種目練習</span><span class="today-major-count">${specialtySectionIds.reduce((n,id)=>n+(day.sections?.[id]?.length||0),0)}件</span></div>
+  <div class="specialty-print-list">${specialtyCards||'<div class="today-empty-group">専門種目練習は設定されていません</div>'}</div>
+ </div>`;
  const notes=parsed.querySelector(".notice")?.outerHTML||"";
  const lastUpdated=Array.from(parsed.querySelectorAll(":scope > p.muted")).map(node=>node.outerHTML).join("");
 
@@ -2113,7 +2157,7 @@ function buildSelectedDayPages(){
 
  return [
   selectedDayPage(overallBlock,"print-overall-page"),
-  selectedDayPage(specialtyBlock,"print-specialty-page")
+  selectedDayPage(specialtyPrintBlock,"print-specialty-page")
  ];
 }
 
