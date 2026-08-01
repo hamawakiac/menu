@@ -1268,6 +1268,21 @@ body.viewer-mode #todayDate{display:none!important}
  #printRoot .month-print-empty{color:#9aa5a0!important}
 }
 </style>
+
+<style id="clear-print-buttons-landscape-month">
+.print-purpose-btn{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;min-width:170px;font-weight:900!important}
+#v-weekly #printInputWeek{background:#e8f4ff!important;color:#075985!important;border:1px solid #93c5fd!important}
+#v-monthly #printInputMonth{background:#fff7d6!important;color:#785500!important;border:1px solid #e5c64b!important}
+@media(max-width:650px){.print-purpose-btn{width:100%;min-width:0}}
+@media print{
+ body.print-month-landscape #printRoot{width:285mm!important;max-width:285mm!important}
+ body.print-month-landscape #printRoot .print-page{width:285mm!important;min-width:285mm!important;max-width:285mm!important;height:198mm!important;min-height:198mm!important;max-height:198mm!important}
+ body.print-month-landscape #printRoot .print-page-inner{width:100%!important;max-width:100%!important;padding:4mm!important}
+ body.print-month-landscape #printRoot .month-print-grid{gap:1.2mm!important}
+ body.print-month-landscape #printRoot .month-print-day{min-height:27mm!important;padding:1.4mm!important}
+ body.print-month-landscape #printRoot .month-print-line{font-size:7.2pt!important;line-height:1.25!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1332,7 +1347,7 @@ body.viewer-mode #todayDate{display:none!important}
     </label>
     <div class="week-control-actions">
      <button id="saveWeek" class="btn primary">1週間を保存</button>
-     <button id="printInputWeek" class="btn secondary">印刷</button>
+     <button id="printInputWeek" class="btn secondary print-purpose-btn">🖨 週間メニューを印刷</button>
     </div>
    </div>
   </div>
@@ -1351,7 +1366,7 @@ body.viewer-mode #todayDate{display:none!important}
     </label>
     <div class="month-control-actions">
      <button id="saveMonth" class="btn primary">1か月を保存</button>
-     <button id="printInputMonth" class="btn secondary">印刷</button>
+     <button id="printInputMonth" class="btn secondary print-purpose-btn">🖨 月間行事を印刷（横向き）</button>
     </div>
    </div>
   </div>
@@ -1785,15 +1800,15 @@ function dayHTML(date,day){
   <p class="muted">最終更新：${esc(nameForDisplay(day.updatedBy||""))}</p>`;
 }
 
-let cachedPrintMaxHeightPx=0;
 function getPrintMaxHeightPx(){
- if(cachedPrintMaxHeightPx>0)return cachedPrintMaxHeightPx;
+ const landscape=document.body.classList.contains("print-month-landscape");
+ const heightMm=landscape?190:279;
  const probe=document.createElement("div");
- probe.style.cssText="position:fixed;left:-10000px;top:0;width:1mm;height:279mm;visibility:hidden;pointer-events:none";
+ probe.style.cssText=`position:fixed;left:-10000px;top:0;width:1mm;height:${heightMm}mm;visibility:hidden;pointer-events:none`;
  document.body.appendChild(probe);
- cachedPrintMaxHeightPx=probe.getBoundingClientRect().height||1054;
+ const height=probe.getBoundingClientRect().height||(landscape?718:1054);
  probe.remove();
- return cachedPrintMaxHeightPx;
+ return height;
 }
 
 function fitAllPrintPages(root){
@@ -1915,6 +1930,9 @@ function performPreparedPrint(builder){
 function cleanupOnePagePrint(){
  const root=document.getElementById("printRoot");
  if(root)root.remove();
+ document.body.classList.remove("print-month-landscape");
+ const pageStyle=document.getElementById("monthLandscapePageStyle");
+ if(pageStyle)pageStyle.remove();
 }
 function dayHasContent(day){
  if(!day)return false;
@@ -2158,6 +2176,14 @@ function monthPrintHTML(month){
  return `<div class="month-print-grid">${weekdays}${blanks}${cells}</div>`;
 }
 function prepareMonthPrint(){
+ document.body.classList.add("print-month-landscape");
+ let pageStyle=document.getElementById("monthLandscapePageStyle");
+ if(!pageStyle){
+  pageStyle=document.createElement("style");
+  pageStyle.id="monthLandscapePageStyle";
+  pageStyle.textContent="@page{size:A4 landscape;margin:6mm}";
+  document.head.appendChild(pageStyle);
+ }
  const month=monthCursor;
  const [y,m]=month.split("-").map(Number);
  const page=document.createElement("section");
