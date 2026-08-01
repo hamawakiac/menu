@@ -1904,6 +1904,33 @@ body.viewer-mode #v-today #printWeek{
   pointer-events:none!important;
 }
 </style>
+
+<style id="viewer-month-compact-info-rows">
+/* viewerの月間予定：行事・テーマ・連絡をコンパクト表示 */
+body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-day{
+  gap:5px 12px!important;
+  padding:8px 11px!important;
+}
+body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-line{
+  min-height:26px!important;
+  margin:0!important;
+  padding:3px 6px!important;
+  border-radius:6px!important;
+  grid-template-columns:58px minmax(0,1fr)!important;
+  gap:3px!important;
+  align-items:center!important;
+  font-size:12px!important;
+  line-height:1.2!important;
+}
+body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-day .month-day-head{
+  gap:4px!important;
+  padding-top:2px!important;
+}
+@media(max-width:650px){
+ body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-day{gap:5px!important;padding:8px 9px!important}
+ body.viewer-mode #v-monthly .month-grid.viewer-month-grid .viewer-month-line{min-height:25px!important;padding:3px 6px!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
