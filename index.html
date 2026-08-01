@@ -1390,7 +1390,13 @@ function applyRoleUI(){
  // viewerには練習メニューの日付選択欄を表示しない。
  // 選択中の日付表示は残し、当日のメニューだけを確認できるようにする。
  const todayDateInput=el("todayDate");
- if(todayDateInput) todayDateInput.style.display=viewer?"none":"";
+ if(todayDateInput){
+  if(viewer){
+   todayDateInput.style.setProperty("display","none","important");
+  }else{
+   todayDateInput.style.removeProperty("display");
+  }
+ }
 
  document.querySelectorAll(".viewer-hide").forEach(node=>{
   node.style.display=viewer?"none":"";
