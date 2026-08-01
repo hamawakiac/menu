@@ -1880,7 +1880,7 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
 #v-weekly #copyPrevWeek{
   background-image:none!important;
   background-color:#d6ad52!important;
-  color:#ffffff!important;
+  color:#145a9c!important;
   border:2px solid #b98b2f!important;
   box-shadow:0 6px 16px rgba(145,105,28,.18)!important;
 }
@@ -1888,10 +1888,20 @@ body.viewer-mode #viewerMonthToolbar{display:flex !important;visibility:visible 
 #v-weekly #copyPrevWeek:hover{
   background-image:none!important;
   background-color:#e0bd70!important;
-  color:#ffffff!important;
+  color:#0f4f8b!important;
   border:2px solid #a97c25!important;
   box-shadow:0 10px 20px rgba(145,105,28,.24)!important;
   transform:translateY(-1px)!important;
+}
+</style>
+
+<style id="viewer-training-print-buttons-definitive-hide">
+/* viewerの練習メニューページでは日別・週間の印刷操作を完全に非表示 */
+body.viewer-mode #v-today #printDay,
+body.viewer-mode #v-today #printWeek{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
 }
 </style>
 </head>
