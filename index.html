@@ -1112,6 +1112,162 @@ body.viewer-mode #todayDate{display:none!important}
 .week-major-row.specialty th{background:linear-gradient(135deg,#171717,#2f4858)!important}
 @media(max-width:700px){.input-major-group-title{font-size:17px;padding:12px 13px}.input-major-group-body{padding:9px}}
 </style>
+
+<style id="weekly-toolbar-notes-redesign">
+/* 練習メニュー：行事・テーマの下に連絡事項を同じカードデザインで表示 */
+.today-meta-notes{grid-column:1 / -1;min-height:54px}
+.today-meta-notes span{white-space:pre-wrap}
+
+/* 週間入力：週情報・選択・保存・印刷を1つの枠内に整理 */
+#v-weekly .week-toolbar{
+ display:block!important;
+ margin:0 0 14px!important;
+ padding:0!important;
+ background:none!important;
+}
+#v-weekly .week-control-box{
+ display:grid;
+ grid-template-columns:minmax(280px,1fr) auto auto;
+ align-items:center;
+ gap:14px;
+ width:100%;
+ padding:12px 14px;
+ border:1px solid #c9ddd6;
+ border-radius:15px;
+ background:linear-gradient(135deg,#f8fcfa,#edf7f3);
+ box-shadow:0 5px 16px rgba(15,83,64,.07);
+}
+#v-weekly .week-range-title{
+ color:#173f34;
+ font-size:16px;
+ font-weight:900;
+ line-height:1.35;
+ white-space:nowrap;
+}
+#v-weekly .week-date-control{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin:0;
+ color:#35534a;
+ font-size:12px;
+ font-weight:900;
+ white-space:nowrap;
+}
+#v-weekly .week-date-control input{
+ width:170px;
+ min-width:150px;
+ padding:9px 10px;
+}
+#v-weekly .week-control-actions{
+ display:flex;
+ align-items:center;
+ justify-content:flex-end;
+ gap:8px;
+ white-space:nowrap;
+}
+@media(max-width:1000px){
+ #v-weekly .week-control-box{grid-template-columns:1fr auto}
+ #v-weekly .week-range-title{grid-column:1 / -1;white-space:normal}
+}
+@media(max-width:650px){
+ #v-weekly .week-control-box{grid-template-columns:1fr;gap:10px}
+ #v-weekly .week-date-control{display:grid;grid-template-columns:auto minmax(0,1fr)}
+ #v-weekly .week-date-control input{width:100%;min-width:0}
+ #v-weekly .week-control-actions{justify-content:stretch}
+ #v-weekly .week-control-actions .btn{flex:1}
+}
+</style>
+
+<style id="monthly-toolbar-match-weekly">
+/* 月間行事：週間入力と同じ操作枠 */
+#v-monthly .month-toolbar{
+ display:block!important;
+ margin:0 0 14px!important;
+ padding:0!important;
+ border:0!important;
+ background:none!important;
+}
+#v-monthly .month-control-box{
+ display:grid;
+ grid-template-columns:minmax(250px,1fr) auto auto;
+ align-items:center;
+ gap:14px;
+ width:100%;
+ padding:12px 14px;
+ border:1px solid #c9ddd6;
+ border-radius:15px;
+ background:linear-gradient(135deg,#f8fcfa,#edf7f3);
+ box-shadow:0 5px 16px rgba(15,83,64,.07);
+}
+#v-monthly .month-range-title{
+ color:#173f34;
+ font-size:16px;
+ font-weight:900;
+ line-height:1.35;
+ white-space:nowrap;
+}
+#v-monthly .month-date-control{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin:0;
+ color:#35534a;
+ font-size:12px;
+ font-weight:900;
+ white-space:nowrap;
+}
+#v-monthly .month-date-control input{
+ width:170px;
+ min-width:150px;
+ padding:9px 10px;
+}
+#v-monthly .month-control-actions{
+ display:flex;
+ align-items:center;
+ justify-content:flex-end;
+ gap:8px;
+ white-space:nowrap;
+}
+@media(max-width:1000px){
+ #v-monthly .month-control-box{grid-template-columns:1fr auto}
+ #v-monthly .month-range-title{grid-column:1 / -1;white-space:normal}
+}
+@media(max-width:650px){
+ #v-monthly .month-control-box{grid-template-columns:1fr;gap:10px}
+ #v-monthly .month-date-control{display:grid;grid-template-columns:auto minmax(0,1fr)}
+ #v-monthly .month-date-control input{width:100%;min-width:0}
+ #v-monthly .month-control-actions{justify-content:stretch}
+ #v-monthly .month-control-actions .btn{flex:1}
+}
+@media print{
+ #printRoot .month-print-grid{
+  display:grid!important;
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  gap:1mm!important;
+ }
+ #printRoot .month-print-weekday{
+  padding:1.2mm .5mm!important;
+  text-align:center!important;
+  font-size:7.5pt!important;
+  font-weight:900!important;
+  background:#eaf7f2!important;
+  border:.2mm solid #b8d8cc!important;
+ }
+ #printRoot .month-print-day{
+  min-height:29mm!important;
+  padding:1.1mm!important;
+  border:.2mm solid #b8c9c2!important;
+  border-radius:1mm!important;
+  background:#fff!important;
+  overflow:hidden!important;
+ }
+ #printRoot .month-print-day-number{font-size:8pt!important;font-weight:900!important;margin-bottom:.8mm!important}
+ #printRoot .month-print-line{font-size:6.6pt!important;line-height:1.25!important;margin:.4mm 0!important}
+ #printRoot .month-print-line b{font-weight:900!important}
+ #printRoot .month-print-empty{color:#9aa5a0!important}
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
@@ -1168,18 +1324,16 @@ body.viewer-mode #todayDate{display:none!important}
 <section id="v-weekly" class="view">
  <div class="panel">
   <div class="week-toolbar no-print">
-   <div class="week-nav-group">
-    <button id="prevWeek" class="btn secondary">← 前の週</button>
-    <button id="thisWeek" class="btn secondary">今週</button>
-   </div>
-   <label class="week-picker" for="weekDate">
-    <span class="week-picker-label">週を選択</span>
-    <input id="weekDate" type="date">
-    <strong id="weekTitle"></strong>
-   </label>
-   <div class="week-nav-group week-nav-right">
-    <button id="saveWeek" class="btn primary">1週間を保存</button>
-    <button id="nextWeek" class="btn secondary">次の週 →</button>
+   <div class="week-control-box">
+    <strong id="weekTitle" class="week-range-title"></strong>
+    <label class="week-date-control" for="weekDate">
+     <span>週を選択</span>
+     <input id="weekDate" type="date">
+    </label>
+    <div class="week-control-actions">
+     <button id="saveWeek" class="btn primary">1週間を保存</button>
+     <button id="printInputWeek" class="btn secondary">印刷</button>
+    </div>
    </div>
   </div>
   <div class="week-wrap"><table class="week"><thead id="weekHead"></thead><tbody id="weekBody"></tbody></table></div>
@@ -1189,18 +1343,16 @@ body.viewer-mode #todayDate{display:none!important}
 <section id="v-monthly" class="view">
  <div class="panel">
   <div class="month-toolbar no-print">
-   <div class="month-nav-group">
-    <button id="prevMonth" class="btn secondary">← 前の月</button>
-    <button id="thisMonth" class="btn secondary">今月</button>
-   </div>
-   <label class="month-picker" for="monthDate">
-    <span>月を選択</span>
-    <input id="monthDate" type="month">
-    <strong id="monthTitle"></strong>
-   </label>
-   <div class="month-nav-group month-nav-right">
-    <button id="saveMonth" class="btn primary">1か月を保存</button>
-    <button id="nextMonth" class="btn secondary">次の月 →</button>
+   <div class="month-control-box">
+    <strong id="monthTitle" class="month-range-title"></strong>
+    <label class="month-date-control" for="monthDate">
+     <span>月を選択</span>
+     <input id="monthDate" type="month">
+    </label>
+    <div class="month-control-actions">
+     <button id="saveMonth" class="btn primary">1か月を保存</button>
+     <button id="printInputMonth" class="btn secondary">印刷</button>
+    </div>
    </div>
   </div>
   <div class="month-grid" id="monthGrid"></div>
@@ -1618,6 +1770,7 @@ function dayHTML(date,day){
  const metaLine=`<div class="today-meta-line">
    <div class="today-meta-item"><b>行事：</b><span class="${day.event?"":"today-meta-empty"}">${day.event?esc(day.event):"未設定"}</span></div>
    <div class="today-meta-item"><b>テーマ：</b><span class="${day.theme?"":"today-meta-empty"}">${day.theme?esc(day.theme):"未設定"}</span></div>
+   <div class="today-meta-item today-meta-notes"><b>連絡事項：</b><span class="${day.notes?"":"today-meta-empty"}">${day.notes?esc(day.notes):"未設定"}</span></div>
   </div>`;
 
  return `${metaLine}
@@ -1629,7 +1782,6 @@ function dayHTML(date,day){
    ${renderMajor("全体練習","overall",overallIds)}
    ${renderMajor("専門種目練習","events",eventIds)}
   </div>
-  ${day.notes?`<div class="notice" style="margin-top:15px"><b>連絡事項</b><br>${esc(day.notes)}</div>`:""}
   <p class="muted">最終更新：${esc(nameForDisplay(day.updatedBy||""))}</p>`;
 }
 
@@ -1729,8 +1881,8 @@ function buildSelectedDayPages(){
  ];
 }
 
-function buildWeekPrintPages(){
- const selected=el("todayDate")?.value||todayISO();
+function buildWeekPrintPages(baseDate){
+ const selected=baseDate||el("todayDate")?.value||todayISO();
  const week=weekSummaryData(selected);
  const weekPage=document.createElement("section");
  weekPage.className="print-page print-week-page";
@@ -1747,8 +1899,8 @@ function prepareSelectedDayPrint(){
  return mountPrintPages(pages);
 }
 
-function prepareWeekPrint(){
- const pages=buildWeekPrintPages();
+function prepareWeekPrint(baseDate){
+ const pages=buildWeekPrintPages(baseDate);
  return mountPrintPages(pages);
 }
 
@@ -1929,9 +2081,8 @@ window.removeWeek=(d,s,i)=>{
 window.setWeekEvent=(d,v)=>{weekDraft[d].event=v;weekDirty=true};
 window.setWeekTheme=(d,v)=>{weekDraft[d].theme=v;weekDirty=true};
 function shiftWeek(n){weekStart=addDays(weekStart,n*7);loadWeek();renderWeek()}
-el("prevWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(-1)};
-el("nextWeek").onclick=()=>{if(confirmLeaveWithUnsaved())shiftWeek(1)};
-el("thisWeek").onclick=()=>{if(!confirmLeaveWithUnsaved())return;weekStart=getMonday(todayISO());loadWeek();renderWeek()};
+const printInputWeekBtn=el("printInputWeek");
+if(printInputWeekBtn)printInputWeekBtn.onclick=()=>performPreparedPrint(()=>prepareWeekPrint(weekStart));
 el("weekDate").onfocus=e=>{previousWeekDate=e.target.value};
 el("weekDate").onchange=e=>{
  if(!e.target.value)return;
@@ -1987,16 +2138,47 @@ window.setMonthEvent=(d,v)=>{monthDraft[d].event=v;monthDirty=true};
 window.setMonthTheme=(d,v)=>{monthDraft[d].theme=v;monthDirty=true};
 window.setMonthNotes=(d,v)=>{monthDraft[d].notes=v;monthDirty=true};
 window.openMonthDay=d=>{if(!nav("daily"))return;el("dailyDate").value=d;loadDay(d)};
+function monthPrintHTML(month){
+ const dates=monthDates(month);
+ const [y,m]=month.split("-").map(Number);
+ const firstOffset=(parseISO(dates[0]).getUTCDay()+6)%7;
+ const weekdays=["月","火","水","木","金","土","日"].map(w=>`<div class="month-print-weekday">${w}</div>`).join("");
+ const blanks=Array.from({length:firstOffset},()=>`<div class="month-print-day month-print-empty"></div>`).join("");
+ const cells=dates.map(date=>{
+  const day=normalizeDay(days[date]||monthDraft[date]);
+  const menuCount=SECTIONS.reduce((sum,s)=>sum+(day.sections?.[s.id]?.length||0),0);
+  return `<div class="month-print-day">
+   <div class="month-print-day-number">${Number(date.slice(-2))}日</div>
+   ${day.event?`<div class="month-print-line"><b>行事：</b>${esc(day.event)}</div>`:""}
+   ${day.theme?`<div class="month-print-line"><b>テーマ：</b>${esc(day.theme)}</div>`:""}
+   ${day.notes?`<div class="month-print-line"><b>連絡：</b>${esc(day.notes)}</div>`:""}
+   ${menuCount?`<div class="month-print-line"><b>メニュー：</b>${menuCount}件</div>`:`<div class="month-print-line month-print-empty">未入力</div>`}
+  </div>`;
+ }).join("");
+ return `<div class="month-print-grid">${weekdays}${blanks}${cells}</div>`;
+}
+function prepareMonthPrint(){
+ const month=monthCursor;
+ const [y,m]=month.split("-").map(Number);
+ const page=document.createElement("section");
+ page.className="print-page print-month-page";
+ page.innerHTML=`<div class="print-page-inner">
+  <div class="print-sheet-title">浜脇AC｜トレーニングメニュー</div>
+  <div class="print-page-label">${y}年${m}月 月間行事</div>
+  ${monthPrintHTML(month)}
+ </div>`;
+ return mountPrintPages([page]);
+}
+
 function shiftMonth(n){const [y,m]=monthCursor.split("-").map(Number);const d=new Date(Date.UTC(y,m-1+n,1));monthCursor=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;loadMonth();renderMonth()}
-el("prevMonth").onclick=()=>{if(confirmLeaveWithUnsaved())shiftMonth(-1)};
-el("nextMonth").onclick=()=>{if(confirmLeaveWithUnsaved())shiftMonth(1)};
-el("thisMonth").onclick=()=>{if(!confirmLeaveWithUnsaved())return;monthCursor=todayISO().slice(0,7);loadMonth();renderMonth()};
 el("monthDate").onfocus=e=>{previousMonthDate=e.target.value};
 el("monthDate").onchange=e=>{
  if(!e.target.value)return;
  if(monthDirty&&!confirmLeaveWithUnsaved()){e.target.value=previousMonthDate||monthCursor;return}
  monthCursor=e.target.value;previousMonthDate=monthCursor;loadMonth();renderMonth();
 };
+const printInputMonthBtn=el("printInputMonth");
+if(printInputMonthBtn)printInputMonthBtn.onclick=()=>performPreparedPrint(prepareMonthPrint);
 el("saveMonth").onclick=async()=>{
  if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");
  try{
