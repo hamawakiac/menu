@@ -2081,6 +2081,90 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
  #v-monthly .month-grid:not(.viewer-month-grid) .month-open-day-btn{width:100%!important}
 }
 </style>
+
+<style id="weekly-mobile-overflow-fix">
+/* 週間入力：スマホで「週を選択」の入力欄が右にはみ出ないよう最終調整 */
+#v-weekly .week-control-box,
+#v-weekly .week-control-box *{box-sizing:border-box!important;}
+#v-weekly .week-control-box > *{min-width:0!important;}
+#v-weekly .week-date-control{min-width:0!important; width:100%!important;}
+#v-weekly .week-date-control input{max-width:100%!important;}
+@media (max-width:900px){
+  #v-weekly .week-control-box{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding:12px!important;
+  }
+  #v-weekly .week-range-title{
+    grid-column:1 / -1!important;
+    white-space:normal!important;
+  }
+  #v-weekly .week-date-control{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:6px!important;
+    white-space:normal!important;
+    align-items:start!important;
+  }
+  #v-weekly .week-date-control input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  #v-weekly .week-control-box .unified-action-btn,
+  #v-weekly .week-control-box .week-copy-btn,
+  #v-weekly .week-control-box button{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+}
+</style>
+
+<style id="monthly-mobile-overflow-fix">
+/* 月間予定：スマホで「月を選択」の入力欄やボタンが右にはみ出ないよう最終調整 */
+#v-monthly .month-control-box,
+#v-monthly .month-control-box *{box-sizing:border-box!important;}
+#v-monthly .month-control-box > *{min-width:0!important;}
+#v-monthly .month-date-control{min-width:0!important; width:100%!important;}
+#v-monthly .month-date-control input{max-width:100%!important;}
+@media (max-width:900px){
+  #v-monthly .month-control-box{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    padding:12px!important;
+  }
+  #v-monthly .month-range-title{
+    grid-column:1 / -1!important;
+    white-space:normal!important;
+  }
+  #v-monthly .month-date-control{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:6px!important;
+    white-space:normal!important;
+    align-items:start!important;
+  }
+  #v-monthly .month-date-control input{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+  #v-monthly .month-control-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+    width:100%!important;
+    justify-content:stretch!important;
+  }
+  #v-monthly .month-control-box .unified-action-btn,
+  #v-monthly .month-control-box button{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="login" class="login hidden">
