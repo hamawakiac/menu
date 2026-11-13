@@ -2192,6 +2192,7 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
 </div></header>
 
 <main>
+<div id="drill-import-status" role="status" hidden></div>
 <section id="v-today" class="view active">
  <div class="panel">
   <div class="toolbar no-print today-topbar"><div class="today-topbar-left"><div id="todaySelectedLabel" class="today-selected-date"></div><input id="todayDate" type="date" aria-label="日付選択"></div><div class="actions"><button id="editDay" class="btn secondary viewer-hide">この日を編集</button><button id="printDay" type="button" class="btn primary viewer-hide unified-action-btn">選択日を印刷</button></div></div>
@@ -3191,6 +3192,73 @@ async function saveMenuDoc(m){
  if(cloud)await db.collection("teams").doc(TEAM_ID).collection("menus").doc(m.id).set({...savedMenu,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
  const i=menus.findIndex(x=>x.id===m.id);if(i>=0)menus[i]=savedMenu;else menus.push(savedMenu);localSave();renderAll();markSaved();
 }
+const drillImportHash="#drill-import";
+const drillImportKey="hamawakiac.pendingDrillMenu";
+let drillImportBusy=false;
+
+function drillImportStatus(message){
+ const status=el("drill-import-status");
+ status.hidden=false;
+ status.textContent=message;
+}
+
+async function importLinkedDrill(){
+ if(location.hash!==drillImportHash||drillImportBusy)return;
+ let drill;
+ try{
+  drill=JSON.parse(sessionStorage.getItem(drillImportKey));
+  if(typeof drill?.name!=="string"||!drill.name.trim()||drill.name.length>120)throw new Error("Invalid drill name");
+ }catch{
+  drillImportStatus("ドリルの情報を読み込めませんでした。ドリル管理からもう一度開いてください。");
+  return;
+ }
+ if(!cloud||!user||!currentRole){
+  drillImportStatus("「"+drill.name+"」を登録するには、編集権限のあるアカウントでログインしてください。");
+  return;
+ }
+ if(!canEditApp()){
+  drillImportStatus("閲覧専用アカウントではドリルを登録できません。");
+  return;
+ }
+
+ drillImportBusy=true;
+ const sourceHash=location.hash;
+ try{
+  drillImportStatus("「"+drill.name+"」を登録中です。");
+  const fields=["detail","sets","intensity","rest","duration","target","caution"];
+  const name=drill.name.trim();
+  const normalizedName=value=>String(value??"").normalize("NFKC").replace(/\s+/g," ").trim().toLowerCase();
+  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(normalizedName(name)));
+  const id="drill-"+Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,"0")).join("");
+  const category="ドリルメニュー";
+  const menu={id,name,category};
+  for(const key of fields)menu[key]=typeof drill[key]==="string"?drill[key].slice(0,10000):"";
+  const collection=db.collection("teams").doc(TEAM_ID).collection("menus");
+  const existing=await collection.where("category","==",category).get();
+  const duplicate=existing.docs.some(doc=>normalizedName(doc.data().name)===normalizedName(name));
+  const ref=collection.doc(id);
+  const created=!duplicate&&await db.runTransaction(async transaction=>{
+   if((await transaction.get(ref)).exists)return false;
+   transaction.set(ref,{...menu,updatedBy:currentUpdaterName(),updatedAtText:new Date().toISOString(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   return true;
+  });
+  drillImportStatus(created?"「"+name+"」をドリルメニューに登録しました。":"「"+name+"」はドリルメニューに登録済みです。");
+  if(location.hash===sourceHash){
+   sessionStorage.removeItem(drillImportKey);
+   history.replaceState(null,"",location.pathname+location.search);
+   nav("menus");
+  }
+ }catch(error){
+  console.error("drill import error",error);
+  drillImportStatus("ドリルを登録できませんでした。通信と編集権限を確認し、このページを再読み込みしてください。");
+ }finally{
+  drillImportBusy=false;
+  if(location.hash!==sourceHash&&location.hash===drillImportHash)void importLinkedDrill();
+ }
+}
+
+window.addEventListener("hashchange",()=>void importLinkedDrill());
+
 el("saveMenu").onclick=async()=>{if(!canEditApp())return alert("閲覧専用アカウントでは編集できません。");const m=menuFormData();if(!m.name)return alert("メニュー名を入力してください");try{await saveMenuDoc(m);resetMenu();nav("menus");setTimeout(()=>el("menuList").scrollIntoView({behavior:"smooth",block:"start"}),50)}catch(e){console.error(e);alert("メニューの保存に失敗しました。通信状態を確認してください。")}}
 function resetMenu(){["editId","name","detail","sets","intensity","rest","duration","target","caution"].forEach(i=>el(i).value="");el("category").value=CATS[0];el("formTitle").textContent="メニュー登録・編集"}
 el("resetMenu").onclick=resetMenu;
@@ -3482,6 +3550,7 @@ async function init(){
     el("login").classList.add("hidden");el("logout").style.display="";setStatus("権限確認中","");el("savestatus").textContent="ユーザー情報を確認中";
     await loadCurrentRole();
     startRealtime();
+    void importLinkedDrill();
     try{await syncStarterMenus()}catch(e){console.error("starter menu sync error",e)}
     setStatus("リアルタイム接続","online");
    }else{
@@ -3517,6 +3586,7 @@ el("password").addEventListener("keydown",e=>{
  if(e.key==="Enter") el("loginBtn").click();
 });
 
+void importLinkedDrill();
 init();
 </script>
 </body>
