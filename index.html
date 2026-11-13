@@ -3130,19 +3130,28 @@ let drillChoices=[];
 
 function refreshDrillChoices(){
  const selected=drillPicker.value===""?null:drillChoices[Number(drillPicker.value)];
- const groups=[
-  ["basic","基本ドリル"],
-  ["20m","スプリントドリル｜20mごとに動作変更"],
-  ["movement","スプリントドリル｜動き作り（7分）"],
-  ["start","スタートドリル"]
- ];
  let saved;
  try{saved=JSON.parse(localStorage.getItem("hamawakiac.drills.v1"))}catch{}
+ function readList(key){
+  const entries=saved?.[key];
+  return Array.isArray(entries)&&entries.every(item=>typeof item?.name==="string"&&typeof item.notes==="string")?entries:drillDefaults[key]??[];
+ }
+ const groups=Array.isArray(saved?.unclassified)?[
+  ["基本ドリル",readList("basic")],
+  ["スプリントドリル",readList("sprint")],
+  ["スタートドリル",readList("start")],
+  ["未分類のドリル",readList("unclassified")]
+ ]:[
+  ["未分類のドリル",[
+   ...readList("basic"),
+   ...readList("20m").map(item=>({...item,notes:[item.notes,"動作を大きく"].filter(Boolean).join("\n")})),
+   ...readList("movement"),
+   ...readList("start")
+  ]]
+ ];
  drillPicker.replaceChildren(new Option("ドリルを選択",""));
  drillChoices=[];
- for(const [key,label] of groups){
-  const entries=saved?.[key];
-  const drills=Array.isArray(entries)&&entries.every(item=>typeof item?.name==="string"&&typeof item.notes==="string")?entries:drillDefaults[key];
+ for(const [label,drills] of groups){
   if(!drills.length)continue;
   const options=document.createElement("optgroup");
   options.label=label;
