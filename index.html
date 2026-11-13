@@ -2264,6 +2264,14 @@ body.viewer-mode #v-monthly .viewer-month-day.is-sunday .viewer-weekday-badge{ba
 
 <section id="v-menus" class="view">
  <div class="panel"><h2 id="formTitle">メニュー登録・編集</h2><p class="muted" style="margin-top:-6px">種類を選ぶだけで、前半・本練習・後半の適切な欄に表示されます。</p><input id="editId" type="hidden">
+  <div class="field no-print">
+   <label for="practiceDrillPicker">ドリル管理から取り込む</label>
+   <select id="practiceDrillPicker"></select>
+   <div class="actions">
+    <button id="usePracticeDrill" type="button" class="btn secondary">選んだドリルを入力</button>
+    <a href="../drills/" target="_blank" rel="noopener">ドリル管理を開く</a>
+   </div>
+  </div>
   <div class="grid2">
    <div>
     <div class="field"><label>メニュー名</label><input id="name"></div>
@@ -3114,6 +3122,57 @@ function renderMenus(){
  el("menuList").innerHTML=list.length?list.map(m=>`<div class="menu ${cls(m.category)}"><div class="menu-rail">${esc(m.category.replace("全体練習メニュー","全体").replace("全体メニュー","全体").replace("メニュー",""))}</div><div class="menu-content"><h4>${esc(m.name)}</h4><span class="chip ${cls(m.category)}"><i></i>${esc(m.category)}</span>${m.detail?`<p>${esc(m.detail)}</p>`:""}<div class="meta">${esc([m.sets,m.intensity,m.rest,m.duration,m.target].filter(Boolean).join("／"))}</div>${menuUpdaterHTML(m)}<div class="actions"><button class="btn secondary small" onclick="editMenu('${m.id}')">編集</button><button class="btn danger small" onclick="deleteMenu('${m.id}')">削除</button></div></div></div>`).join(""):`<div class="empty">該当なし</div>`
 }
 el("filterCat").oninput=renderMenus;el("filterText").oninput=renderMenus;
+
+
+const drillDefaults={"basic":[{"name":"直立でその場で跳ねてから同じリズムで走る","notes":""},{"name":"高速腿上げ","notes":""},{"name":"メディシンボール走","notes":""},{"name":"腕無し走","notes":""},{"name":"丸太ドリル","notes":""}],"20m":[{"name":"肩関節回し","notes":""},{"name":"ヒップロック1","notes":""},{"name":"右肩関節","notes":""},{"name":"左肩関節","notes":""},{"name":"ランジ肩関節","notes":""},{"name":"ヒップロック2","notes":""},{"name":"上体バランス体重移動","notes":""},{"name":"体重移動走","notes":""},{"name":"ランジ腕回し","notes":""},{"name":"接地","notes":""},{"name":"腕回し","notes":""},{"name":"ランジ脇腹伸ばし","notes":""}],"movement":[{"name":"腕回しスキップ40m","notes":""},{"name":"バックスキップ40m","notes":""},{"name":"腕回しサイドスキップ40m","notes":""},{"name":"クロススキップ40m","notes":""},{"name":"股関節回し前20m歩→20mスキップ","notes":""},{"name":"股関節回し後20m歩→20mスキップ","notes":""},{"name":"空中切り替え10mウォークバック×2","notes":""},{"name":"Aスキップ10mウォークバック×2","notes":""},{"name":"Bスキップ20mウォークバック×2","notes":""},{"name":"Cスキップ20mウォークバック×2","notes":""},{"name":"流し60m×1","notes":""}],"start":[]};
+const drillPicker=el("practiceDrillPicker");
+let drillChoices=[];
+
+function refreshDrillChoices(){
+ const selected=drillPicker.value===""?null:drillChoices[Number(drillPicker.value)];
+ const groups=[
+  ["basic","基本ドリル"],
+  ["20m","スプリントドリル｜20mごとに動作変更"],
+  ["movement","スプリントドリル｜動き作り（7分）"],
+  ["start","スタートドリル"]
+ ];
+ let saved;
+ try{saved=JSON.parse(localStorage.getItem("hamawakiac.drills.v1"))}catch{}
+ drillPicker.replaceChildren(new Option("ドリルを選択",""));
+ drillChoices=[];
+ for(const [key,label] of groups){
+  const entries=saved?.[key];
+  const drills=Array.isArray(entries)&&entries.every(item=>typeof item?.name==="string"&&typeof item.notes==="string")?entries:drillDefaults[key];
+  if(!drills.length)continue;
+  const options=document.createElement("optgroup");
+  options.label=label;
+  for(const drill of drills){
+   options.append(new Option(drill.name,String(drillChoices.length)));
+   drillChoices.push(drill);
+  }
+  drillPicker.append(options);
+ }
+ if(!selected)return;
+ const index=drillChoices.findIndex(drill=>drill.name===selected.name&&drill.notes===selected.notes);
+ if(index>=0)drillPicker.value=String(index);
+}
+
+refreshDrillChoices();
+window.addEventListener("storage",event=>{
+ if(event.key==="hamawakiac.drills.v1"||event.key===null)refreshDrillChoices();
+});
+el("usePracticeDrill").onclick=()=>{
+ if(!canEditApp())return;
+ if(drillPicker.value==="")return drillPicker.focus();
+ const drill=drillChoices[Number(drillPicker.value)];
+ const formHasContent=["editId","name","detail","sets","intensity","rest","duration","target","caution"].some(id=>el(id).value.trim());
+ if(formHasContent&&!confirm("入力中の内容を選んだドリルで置き換えますか？"))return;
+ resetMenu();
+ el("name").value=drill.name;
+ el("detail").value=drill.notes;
+ el("category").value="ドリルメニュー";
+ el("name").focus();
+};
 
 function menuFormData(){
  return{id:el("editId").value||crypto.randomUUID(),name:el("name").value.trim(),category:el("category").value,detail:el("detail").value.trim(),sets:el("sets").value.trim(),intensity:el("intensity").value.trim(),rest:el("rest").value.trim(),duration:el("duration").value.trim(),target:el("target").value.trim(),caution:el("caution").value.trim()}
